@@ -13,9 +13,7 @@
 #include "miembro.h"
 #include "titulo.h"
 
-/* ================================================================
-   Variables globales
-   ================================================================ */
+
 t_miembro  arr_miembros[MAX_MIEMBROS];
 int        cant_miembros   = 0;
 
@@ -33,9 +31,7 @@ t_incidencias_titulos  inc_titulos;
 
 t_fecha fecha_proceso;
 
-/* ================================================================
-   main
-   ================================================================ */
+
 int main(void) {
     char opcion[4];
     char fecha_str[12], path[128], data_path[256];

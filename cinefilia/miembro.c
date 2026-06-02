@@ -1,19 +1,24 @@
-/* ============================================================
-   miembro.c - Implementacion de operaciones sobre miembros
-   ============================================================ */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "miembro.h"
 
-/* ------------------------------------------------------------------ */
+static void pedir_plan(char *plan) {
+    int op;
+    do {
+        printf("  Plan:\n    1. BASIC\n    2. PREMIUM\n    3. VIP\n    4. FAMILY\n  Opcion: ");
+        if (scanf("%d", &op) != 1) op = 0;
+        getchar();
+    } while (op < 1 || op > 4);
+    const char *planes[] = {"", "BASIC", "PREMIUM", "VIP", "FAMILY"};
+    strcpy(plan, planes[op]);
+}
+
 static void leer_linea(char *buf, int max) {
     if (fgets(buf, max, stdin)) {
         int len = (int)strlen(buf);
         if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
-        if (len > 1 && buf[len - 2] == '\r') buf[len - 2] = '\0';
     }
 }
 
@@ -27,13 +32,10 @@ static int csv_split(char *linea, char **campos, int max) {
         ptr++;
     }
     ptr = campos[n - 1] + strlen(campos[n - 1]) - 1;
-    while (ptr >= campos[n - 1] && (*ptr == '\n' || *ptr == '\r')) *ptr-- = '\0';
+    while (ptr >= campos[n - 1] && (*ptr == '\n')) *ptr-- = '\0';
     return n;
 }
 
-/* ================================================================
-   Validacion
-   ================================================================ */
 int miembro_validar(const t_miembro *m, t_fecha fp) {
     if (!validar_generico(&m->dni,                validar_dni))    return ERR_MBR_DNI;
     if (!validar_generico(m->apellidos_nombres,   validar_nombre)) return ERR_MBR_NOMBRE;
@@ -52,10 +54,6 @@ int miembro_validar(const t_miembro *m, t_fecha fp) {
     return -1;
 }
 
-/* ================================================================
-   Carga desde CSV original
-   Formato: DNI;Nombres;FechaNac;Sexo;FechaAfil;FechaUltCuota;Plan[;EmailTutor]
-   ================================================================ */
 int miembros_cargar_csv(const char *path, t_miembro *arr, int *cant,
                         t_indice *idx, t_incidencias_miembros *inc, t_fecha fp) {
     FILE        *f;
@@ -73,7 +71,7 @@ int miembros_cargar_csv(const char *path, t_miembro *arr, int *cant,
     }
 
     while (fgets(linea, sizeof(linea), f)) {
-        if (linea[0] == '\n' || linea[0] == '\r' || linea[0] == '#') continue;
+        if (linea[0] == '\n' || linea[0] == '#') continue;
         n = csv_split(linea, campos, 10);
         if (n < 7) continue;
 
@@ -135,11 +133,6 @@ int miembros_cargar_csv(const char *path, t_miembro *arr, int *cant,
     return *cant;
 }
 
-/* ================================================================
-   Carga desde CSV fechado (generado por el sistema)
-   Formato: DNI;CUIL;Nombres;FechaNac;Sexo;FechaAfil;Categoria;FechaUltCuota;Estado;Plan;EmailTutor
-   No valida, restaura el estado exacto.
-   ================================================================ */
 int miembros_cargar_csv_fechado(const char *path, t_miembro *arr, int *cant,
                                 t_indice *idx) {
     FILE        *f;
@@ -154,7 +147,7 @@ int miembros_cargar_csv_fechado(const char *path, t_miembro *arr, int *cant,
 
     *cant = 0;
     while (fgets(linea, sizeof(linea), f) && *cant < MAX_MIEMBROS) {
-        if (linea[0] == '\n' || linea[0] == '\r' || linea[0] == '#') continue;
+        if (linea[0] == '\n' || linea[0] == '#') continue;
         n = csv_split(linea, campos, 12);
         if (n < 10) continue;
 
@@ -183,10 +176,6 @@ int miembros_cargar_csv_fechado(const char *path, t_miembro *arr, int *cant,
     return *cant;
 }
 
-/* ================================================================
-   Guardar CSV fechado
-   Formato: DNI;CUIL;Nombres;FechaNac;Sexo;FechaAfil;Categoria;FechaUltCuota;Estado;Plan;EmailTutor
-   ================================================================ */
 int miembros_guardar_csv(const char *path, const t_miembro *arr, int cant) {
     FILE *f;
     int   i;
@@ -213,23 +202,6 @@ int miembros_guardar_csv(const char *path, const t_miembro *arr, int cant) {
     return 1;
 }
 
-/* ================================================================
-   Menu de seleccion de plan
-   ================================================================ */
-static void pedir_plan(char *plan) {
-    int op;
-    do {
-        printf("  Plan:\n    1. BASIC\n    2. PREMIUM\n    3. VIP\n    4. FAMILY\n  Opcion: ");
-        if (scanf("%d", &op) != 1) op = 0;
-        getchar();
-    } while (op < 1 || op > 4);
-    const char *planes[] = {"", "BASIC", "PREMIUM", "VIP", "FAMILY"};
-    strcpy(plan, planes[op]);
-}
-
-/* ================================================================
-   Alta interactiva
-   ================================================================ */
 void miembro_alta(t_miembro *arr, int *cant, t_indice *idx, t_fecha fp) {
     t_miembro    m;
     t_reg_indice ri;
@@ -307,9 +279,6 @@ void miembro_alta(t_miembro *arr, int *cant, t_indice *idx, t_fecha fp) {
     printf("Miembro dado de alta. CUIL: %s\n", m.cuil);
 }
 
-/* ================================================================
-   Baja logica
-   ================================================================ */
 void miembro_baja(t_miembro *arr, t_indice *idx, t_fecha fp) {
     long         dni;
     char         buf[32];
@@ -335,9 +304,6 @@ void miembro_baja(t_miembro *arr, t_indice *idx, t_fecha fp) {
     printf("Miembro %ld dado de baja.\n", dni);
 }
 
-/* ================================================================
-   Modificacion
-   ================================================================ */
 void miembro_modificar(t_miembro *arr, t_indice *idx, t_fecha fp) {
     long         dni;
     char         buf[128];
@@ -410,9 +376,6 @@ void miembro_modificar(t_miembro *arr, t_indice *idx, t_fecha fp) {
     printf("Miembro modificado exitosamente.\n");
 }
 
-/* ================================================================
-   Visualizacion
-   ================================================================ */
 void miembro_mostrar(const t_miembro *m) {
     printf("  DNI        : %ld\n",   m->dni);
     printf("  CUIL       : %s\n",    m->cuil);
@@ -449,9 +412,6 @@ void miembro_mostrar_por_dni(const t_miembro *arr, const t_indice *idx) {
     miembro_mostrar(&arr[ri.nro_reg]);
 }
 
-/* ================================================================
-   Listados
-   ================================================================ */
 void miembros_listar_por_dni(const t_miembro *arr, const t_indice *idx) {
     unsigned      i;
     t_reg_indice *ri;

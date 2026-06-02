@@ -126,4 +126,4 @@ Observaciones: -
 **************************************************************************/
 void indice_vaciar(t_indice *indice);
 
-#endif /* INDICE_H_INCLUDED */
+#endif // INDICE_H_INCLUDED

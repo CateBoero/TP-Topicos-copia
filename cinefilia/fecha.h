@@ -1,10 +1,6 @@
 #ifndef FECHA_H_INCLUDED
 #define FECHA_H_INCLUDED
 
-/* ============================================================
-   fecha.h - Operaciones con fechas
-   ============================================================ */
-
 #include "tipos.h"
 
 /* Retorna 1 si el anio es bisiesto */
@@ -41,4 +37,4 @@ void fecha_a_string_archivo(t_fecha f, char *buf);
    Si el usuario presiona Enter, retorna la fecha del sistema. */
 t_fecha pedir_fecha_proceso(void);
 
-#endif /* FECHA_H_INCLUDED */
+#endif // FECHA_H_INCLUDED

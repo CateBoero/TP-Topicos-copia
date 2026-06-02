@@ -1,8 +1,3 @@
-/* ============================================================
-   funciones.c - CUIL, normalizacion, validacion generica,
-                 incidencias y alquiler
-   ============================================================ */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,9 +5,6 @@
 #include "funciones.h"
 #include "fecha.h"
 
-/* ================================================================
-   Comparador de indice
-   ================================================================ */
 int cmp_reg_indice(const void *a, const void *b) {
     const t_reg_indice *ra = (const t_reg_indice *)a;
     const t_reg_indice *rb = (const t_reg_indice *)b;
@@ -21,11 +13,6 @@ int cmp_reg_indice(const void *a, const void *b) {
     return 0;
 }
 
-/* ================================================================
-   CUIL
-   Formato: XY - DNI(8 digitos) - Z
-   XY: 20 (M/O), 27 (F)
-   ================================================================ */
 void calcular_cuil(long dni, char sexo, char *cuil_str) {
     static const int pesos[] = {5, 4, 3, 2, 7, 6, 5, 4, 3, 2};
     int  digitos[10], xy, z, suma, resto, i;
@@ -57,12 +44,6 @@ void calcular_cuil(long dni, char sexo, char *cuil_str) {
     sprintf(cuil_str, "%02d-%08ld-%d", xy, dni, z);
 }
 
-/* ================================================================
-   Normalizacion de nombres
-   Regla: primera letra de cada palabra en mayuscula, resto minuscula.
-   Separar apellido/s del nombre con coma (si no existe, agregar
-   despues de la primera palabra).
-   ================================================================ */
 #define MAX_PALABRAS 20
 #define MAX_LEN_PAL  65
 
@@ -116,9 +97,6 @@ void normalizar_nombre(const char *src, char *dest) {
     strcpy(dest, temp);
 }
 
-/* ================================================================
-   Validacion de email: usuario@dominio.com[.pais]
-   ================================================================ */
 int validar_email(const char *email) {
     int i, len, arroba_pos, domain_start, punto_dom;
 
@@ -156,9 +134,6 @@ int validar_email(const char *email) {
     return 1;
 }
 
-/* ================================================================
-   Validacion generica con puntero a funcion
-   ================================================================ */
 int validar_generico(const void *dato, int (*validar)(const void *)) {
     return validar(dato);
 }
@@ -204,9 +179,6 @@ int validar_id_pelicula(const void *dato) {
     return (id > 0);
 }
 
-/* ================================================================
-   Incidencias - Inicializacion
-   ================================================================ */
 static const char *nombres_err_mbr[ERR_MBR_MAX] = {
     "DNI", "NOMBRE", "FECHA_NAC", "SEXO",
     "FECHA_AFIL", "FECHA_CUOTA", "PLAN", "EMAIL"
@@ -244,9 +216,6 @@ void incidencias_titulos_init(t_incidencias_titulos *inc) {
     }
 }
 
-/* ================================================================
-   Incidencias - Agregar
-   ================================================================ */
 void incidencias_miembros_agregar(t_incidencias_miembros *inc, int tipo, long dni) {
     if (tipo < 0 || tipo >= ERR_MBR_MAX) return;
     if (inc->filas[tipo].cantidad < MAX_INCIDENCIAS) {
@@ -263,9 +232,6 @@ void incidencias_titulos_agregar(t_incidencias_titulos *inc, int tipo, int id) {
     }
 }
 
-/* ================================================================
-   Incidencias - Imprimir
-   ================================================================ */
 void incidencias_miembros_imprimir(const t_incidencias_miembros *inc) {
     int i, j, hay = 0;
     printf("\n=== INCIDENCIAS - MIEMBROS ===\n");
@@ -304,9 +270,6 @@ void incidencias_titulos_imprimir(const t_incidencias_titulos *inc) {
     if (!hay) printf("Sin incidencias de validacion en titulos.\n");
 }
 
-/* ================================================================
-   Incidencias - Ordenamiento por cantidad descendente (qsort)
-   ================================================================ */
 static int cmp_fila_mbr(const void *a, const void *b) {
     const t_fila_inc_miembro *fa = (const t_fila_inc_miembro *)a;
     const t_fila_inc_miembro *fb = (const t_fila_inc_miembro *)b;
@@ -331,10 +294,6 @@ void incidencias_ordenar_titulos(t_incidencias_titulos *inc) {
     qsort(inc->filas, ERR_TIT_MAX, sizeof(t_fila_inc_titulo), cmp_fila_tit);
 }
 
-/* ================================================================
-   Incidencias - Guardar CSV
-   Formato: tipo;cantidad;id1;id2;...
-   ================================================================ */
 int incidencias_miembros_guardar_csv(const t_incidencias_miembros *inc, const char *path) {
     FILE *f;
     int   i, j;
@@ -371,9 +330,6 @@ int incidencias_titulos_guardar_csv(const t_incidencias_titulos *inc, const char
     return 1;
 }
 
-/* ================================================================
-   Incidencias - Cargar CSV
-   ================================================================ */
 static int csv_split_buf(char *linea, char **campos, int max) {
     int   n   = 0;
     char *ptr = linea;
@@ -384,7 +340,7 @@ static int csv_split_buf(char *linea, char **campos, int max) {
         ptr++;
     }
     ptr = campos[n - 1] + strlen(campos[n - 1]) - 1;
-    while (ptr >= campos[n - 1] && (*ptr == '\n' || *ptr == '\r')) *ptr-- = '\0';
+    while (ptr >= campos[n - 1] && (*ptr == '\n')) *ptr-- = '\0';
     return n;
 }
 
@@ -400,7 +356,7 @@ int incidencias_miembros_cargar_csv(t_incidencias_miembros *inc, const char *pat
     incidencias_miembros_init(inc);
 
     while (fgets(linea, sizeof(linea), f)) {
-        if (linea[0] == '\n' || linea[0] == '\r' || linea[0] == '#') continue;
+        if (linea[0] == '\n' || linea[0] == '#') continue;
         n = csv_split_buf(linea, campos, MAX_INCIDENCIAS + 3);
         if (n < 2) continue;
 
@@ -433,7 +389,7 @@ int incidencias_titulos_cargar_csv(t_incidencias_titulos *inc, const char *path)
     incidencias_titulos_init(inc);
 
     while (fgets(linea, sizeof(linea), f)) {
-        if (linea[0] == '\n' || linea[0] == '\r' || linea[0] == '#') continue;
+        if (linea[0] == '\n'|| linea[0] == '#') continue;
         n = csv_split_buf(linea, campos, MAX_INCIDENCIAS + 3);
         if (n < 2) continue;
 
@@ -454,9 +410,6 @@ int incidencias_titulos_cargar_csv(t_incidencias_titulos *inc, const char *path)
     return 1;
 }
 
-/* ================================================================
-   Alquiler
-   ================================================================ */
 int alquiler_buscar(const t_alquiler *arr, int cant, long dni, int id_pelicula) {
     int i;
     for (i = 0; i < cant; i++)
@@ -473,12 +426,10 @@ int alquiler_activos_miembro(const t_alquiler *arr, int cant, long dni) {
     return total;
 }
 
-/* ------------------------------------------------------------------ */
 static void leer_linea_alq(char *buf, int max) {
     if (fgets(buf, max, stdin)) {
         int len = (int)strlen(buf);
         if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
-        if (len > 1 && buf[len - 2] == '\r') buf[len - 2] = '\0';
     }
 }
 
@@ -589,10 +540,6 @@ int alquiler_devolver(t_alquiler *arr, int cant,
     return 1;
 }
 
-/* ================================================================
-   Alquiler - Persistencia CSV
-   Formato: DNI;ID_Pelicula;Total;Activos
-   ================================================================ */
 int alquileres_guardar_csv(const char *path, const t_alquiler *arr, int cant) {
     FILE *f;
     int   i;
@@ -620,7 +567,7 @@ int alquileres_cargar_csv(const char *path, t_alquiler *arr, int *cant) {
 
     *cant = 0;
     while (fgets(linea, sizeof(linea), f) && *cant < MAX_ALQUILERES) {
-        if (linea[0] == '\n' || linea[0] == '\r' || linea[0] == '#') continue;
+        if (linea[0] == '\n' || linea[0] == '#') continue;
         n = csv_split_buf(linea, campos, 5);
         if (n < 4) continue;
         arr[*cant].dni                = atol(campos[0]);
@@ -634,9 +581,6 @@ int alquileres_cargar_csv(const char *path, t_alquiler *arr, int *cant) {
     return *cant;
 }
 
-/* ================================================================
-   Menu e interfaz
-   ================================================================ */
 int archivos_fechados_existen(t_fecha fp, const char *data_path) {
     char  path[256], fecha_str[12];
     FILE *f;

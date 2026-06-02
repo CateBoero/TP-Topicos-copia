@@ -1,19 +1,24 @@
-/* ============================================================
-   titulo.c - Implementacion de operaciones sobre titulos
-   ============================================================ */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "titulo.h"
 
-/* ------------------------------------------------------------------ */
+static void pedir_genero(char *genero) {
+    int op;
+    do {
+        printf("  Genero:\n    1. Accion\n    2. Drama\n    3. Comedia\n    4. Terror\n  Opcion: ");
+        if (scanf("%d", &op) != 1) op = 0;
+        getchar();
+    } while (op < 1 || op > 4);
+    const char *generos[] = {"", "Accion", "Drama", "Comedia", "Terror"};
+    strcpy(genero, generos[op]);
+}
+
 static void leer_linea(char *buf, int max) {
     if (fgets(buf, max, stdin)) {
         int len = (int)strlen(buf);
         if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
-        if (len > 1 && buf[len - 2] == '\r') buf[len - 2] = '\0';
     }
 }
 
@@ -27,7 +32,7 @@ static int csv_split(char *linea, char **campos, int max) {
         ptr++;
     }
     ptr = campos[n - 1] + strlen(campos[n - 1]) - 1;
-    while (ptr >= campos[n - 1] && (*ptr == '\n' || *ptr == '\r')) *ptr-- = '\0';
+    while (ptr >= campos[n - 1] && (*ptr == '\n')) *ptr-- = '\0';
     return n;
 }
 
@@ -39,9 +44,6 @@ static void normalizar_genero(const char *src, char *dest) {
     dest[i] = '\0';
 }
 
-/* ================================================================
-   Validacion
-   ================================================================ */
 int titulo_validar(const t_titulo *t) {
     if (!validar_generico(&t->id_pelicula, validar_id_pelicula)) return ERR_TIT_ID;
     if (!validar_generico(t->titulo,       validar_nombre))      return ERR_TIT_TITULO;
@@ -50,10 +52,6 @@ int titulo_validar(const t_titulo *t) {
     return -1;
 }
 
-/* ================================================================
-   Carga desde CSV original
-   Formato: ID;Titulo;Genero;Stock
-   ================================================================ */
 int titulos_cargar_csv(const char *path, t_titulo *arr, int *cant,
                        t_indice *idx, t_incidencias_titulos *inc) {
     FILE        *f;
@@ -71,7 +69,7 @@ int titulos_cargar_csv(const char *path, t_titulo *arr, int *cant,
     }
 
     while (fgets(linea, sizeof(linea), f)) {
-        if (linea[0] == '\n' || linea[0] == '\r' || linea[0] == '#') continue;
+        if (linea[0] == '\n' || linea[0] == '#') continue;
         n = csv_split(linea, campos, 6);
         if (n < 4) continue;
 
@@ -104,10 +102,6 @@ int titulos_cargar_csv(const char *path, t_titulo *arr, int *cant,
     return *cant;
 }
 
-/* ================================================================
-   Carga desde CSV fechado
-   Formato: ID;Titulo;Genero;Stock;Estado
-   ================================================================ */
 int titulos_cargar_csv_fechado(const char *path, t_titulo *arr, int *cant,
                                t_indice *idx) {
     FILE        *f;
@@ -122,7 +116,7 @@ int titulos_cargar_csv_fechado(const char *path, t_titulo *arr, int *cant,
 
     *cant = 0;
     while (fgets(linea, sizeof(linea), f) && *cant < MAX_TITULOS) {
-        if (linea[0] == '\n' || linea[0] == '\r' || linea[0] == '#') continue;
+        if (linea[0] == '\n' || linea[0] == '#') continue;
         n = csv_split(linea, campos, 6);
         if (n < 5) continue;
 
@@ -145,10 +139,6 @@ int titulos_cargar_csv_fechado(const char *path, t_titulo *arr, int *cant,
     return *cant;
 }
 
-/* ================================================================
-   Guardar CSV fechado
-   Formato: ID;Titulo;Genero;Stock;Estado
-   ================================================================ */
 int titulos_guardar_csv(const char *path, const t_titulo *arr, int cant) {
     FILE *f;
     int   i;
@@ -165,28 +155,11 @@ int titulos_guardar_csv(const char *path, const t_titulo *arr, int cant) {
     return 1;
 }
 
-/* ================================================================
-   Proximo ID autoincremental
-   ================================================================ */
 int titulo_proximo_id(const t_titulo *arr, int cant) {
     int max_id = 0, i;
     for (i = 0; i < cant; i++)
         if (arr[i].id_pelicula > max_id) max_id = arr[i].id_pelicula;
     return max_id + 1;
-}
-
-/* ================================================================
-   Menu de seleccion de genero
-   ================================================================ */
-static void pedir_genero(char *genero) {
-    int op;
-    do {
-        printf("  Genero:\n    1. Accion\n    2. Drama\n    3. Comedia\n    4. Terror\n  Opcion: ");
-        if (scanf("%d", &op) != 1) op = 0;
-        getchar();
-    } while (op < 1 || op > 4);
-    const char *generos[] = {"", "Accion", "Drama", "Comedia", "Terror"};
-    strcpy(genero, generos[op]);
 }
 
 /* ================================================================
@@ -254,9 +227,6 @@ void titulo_baja(t_titulo *arr, t_indice *idx) {
     printf("Titulo ID %d dado de baja.\n", id);
 }
 
-/* ================================================================
-   Modificacion
-   ================================================================ */
 void titulo_modificar(t_titulo *arr, t_indice *idx) {
     int          id, op, err;
     char         buf[128];
@@ -304,9 +274,6 @@ void titulo_modificar(t_titulo *arr, t_indice *idx) {
     printf("Titulo modificado exitosamente.\n");
 }
 
-/* ================================================================
-   Visualizacion
-   ================================================================ */
 void titulo_mostrar(const t_titulo *t) {
     printf("  ID     : %d\n",  t->id_pelicula);
     printf("  Titulo : %s\n",  t->titulo);

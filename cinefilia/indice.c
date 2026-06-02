@@ -1,7 +1,3 @@
-/* ============================================================
-   indice.c - Implementacion del TDA Indice
-   ============================================================ */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

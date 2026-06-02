@@ -1,10 +1,6 @@
 #ifndef TIPOS_H_INCLUDED
 #define TIPOS_H_INCLUDED
 
-/* ============================================================
-   tipos.h - Definicion de tipos de datos del sistema Cinefilia
-   ============================================================ */
-
 #define MAX_MIEMBROS      1000
 #define MAX_TITULOS        500
 #define MAX_ALQUILERES    5000
@@ -52,4 +48,4 @@ typedef struct {
     int  alquileres_activos;
 } t_alquiler;
 
-#endif /* TIPOS_H_INCLUDED */
+#endif // TIPOS_H_INCLUDED
