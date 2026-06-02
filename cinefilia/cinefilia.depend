@@ -1,0 +1,152 @@
+# depslib dependency file v1.0
+1780182144 source:c:\users\cater\onedrive\escritorio\cinefilia\fecha.c
+
+1780182131 source:c:\users\cater\onedrive\escritorio\cinefilia\funciones.c
+
+1780182170 source:c:\users\cater\onedrive\escritorio\cinefilia\indice.c
+
+1584205420 source:c:\users\cater\onedrive\escritorio\cinefilia\main.c
+	<stdio.h>
+	<stdlib.h>
+
+1780182157 source:c:\users\cater\onedrive\escritorio\cinefilia\miembro.c
+
+1780182195 source:c:\users\cater\onedrive\escritorio\cinefilia\titulo.c
+
+1780347611 source:c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\fecha.c
+	<stdio.h>
+	<string.h>
+	<time.h>
+	"fecha.h"
+
+1780347611 c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\fecha.h
+	"tipos.h"
+
+1780363329 c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\tipos.h
+
+1780363329 source:c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\funciones.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"funciones.h"
+	"fecha.h"
+	"tipos.h"
+
+1780406730 c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\funciones.h
+	"tipos.h"
+	"indice.h"
+
+1780407365 c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\indice.h
+
+1780185600 source:c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\indice.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"indice.h"
+
+1780362855 source:c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\miembro.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"miembro.h"
+
+1780362850 c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\miembro.h
+	"tipos.h"
+	"fecha.h"
+	"indice.h"
+	"funciones.h"
+
+1780408618 source:c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"tipos.h"
+	"fecha.h"
+	"indice.h"
+	"funciones.h"
+	"miembro.h"
+	"titulo.h"
+
+1780408024 c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\titulo.h
+	"tipos.h"
+	"indice.h"
+	"funciones.h"
+
+1780408191 source:c:\users\ariel\onedrive\escritorio\tp-topicos\cinefilia\titulo.c
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<ctype.h>
+	"titulo.h"
+
+1780410705 source:c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\fecha.c
+	<stdio.h>
+	<string.h>
+	<time.h>
+	"fecha.h"
+
+1780362436 c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\fecha.h
+	"tipos.h"
+
+1780362436 c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\tipos.h
+
+1780411509 source:c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\funciones.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"funciones.h"
+	"fecha.h"
+
+1780411645 c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\funciones.h
+	"tipos.h"
+	"indice.h"
+
+1780362436 c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\indice.h
+	<stddef.h>
+
+1780411185 source:c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\indice.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"indice.h"
+
+1780411509 source:c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"tipos.h"
+	"fecha.h"
+	"indice.h"
+	"funciones.h"
+	"miembro.h"
+	"titulo.h"
+
+1780362436 c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\miembro.h
+	"tipos.h"
+	"fecha.h"
+	"indice.h"
+	"funciones.h"
+
+1780362436 c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\titulo.h
+	"tipos.h"
+	"indice.h"
+	"funciones.h"
+
+1780411432 source:c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\miembro.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	<unistd.h>
+	"miembro.h"
+
+1780410721 source:c:\users\ariel\onedrive\escritorio\tp-topicos - copia\cinefilia\titulo.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"titulo.h"
+

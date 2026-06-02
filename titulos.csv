@@ -1,0 +1,15 @@
+# titulos.csv - Catalogo de peliculas del videoclub Cinefilia
+# Formato: ID;Titulo;Genero;Stock
+#
+1;el padrino;Drama;5
+2;TERMINATOR 2 el juicio final;Accion;3
+3;la gran evasion;Drama;2
+4;alien el octavo pasajero;Terror;4
+5;GREASE;Comedia;4
+6;rocky;Accion;3
+7;psicosis;Terror;2
+8;la vida es bella;Drama;3
+9;ghostbusters los cazafantasmas;Comedia;5
+10;el senor de los anillos;Accion;2
+11;genero_invalido;ScienceFi;2
+12;el exorcista;Terror;1
