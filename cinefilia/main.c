@@ -74,10 +74,10 @@ int main(void) {
     indice_crear(&indice_titulos,  CANTIDAD_ELEMENTOS, sizeof(t_reg_indice));
 
     /* 3. Inicializar incidencias */
-    printf("Inicializando incidencias...\n");
+   // printf("Inicializando incidencias...\n");
     fflush(stdout);
-    incidencias_miembros_init(&inc_miembros);
-    incidencias_titulos_init(&inc_titulos);
+   // incidencias_miembros_init(&inc_miembros);
+   // incidencias_titulos_init(&inc_titulos);
 
     /* 4. Cargar datos: CSV fechados si existen, si no CSV originales */
     printf("\nBuscando archivos fechados...\n");
