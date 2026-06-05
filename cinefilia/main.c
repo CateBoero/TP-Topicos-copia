@@ -1,6 +1,9 @@
 /* ============================================================
    main.c - Sistema Cinefilia
    UNLAM - Topicos de Programacion - 1C 2026
+   Alumnos:
+   Caterina Milagros Boero
+   Nahuel Agustin Rigoli
    ============================================================ */
 
 #include <stdio.h>
