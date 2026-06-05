@@ -1,5 +1,6 @@
 # miembros.csv - Datos de miembros del videoclub Cinefilia
-# Formato: DNI;ApellidosNombres;FechaNac(DD/MM/AAAA);Sexo;FechaAfil(DD/MM/AAAA);FechaUltCuota(DD/MM/AAAA);Plan;EmailTutor
+# Formato original: DNI;ApellidosNombres;FechaNac(DD/MM/AAAA);Sexo;FechaAfil(DD/MM/AAAA);FechaUltCuota(DD/MM/AAAA);Plan;EmailTutor
+# El CUIL se calcula en el programa y se guarda solo en los archivos fechados (miembros_YYYYMMDD.csv).
 #
 12345678;garcia pepe;01/05/1980;M;15/03/2020;01/05/2026;BASIC;
 23456789;RODRIGUEZ maria elena;20/11/1995;F;10/01/2022;15/05/2026;PREMIUM;
