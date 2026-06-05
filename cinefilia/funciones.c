@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "tipos.h"
 #include "funciones.h"
 #include "fecha.h"
 
@@ -19,10 +20,10 @@ int cmp_reg_indice(const void *a, const void *b) {
 void calcular_cuil(long dni, char sexo, char *cuil_str) {
     static const int pesos[] = {5, 4, 3, 2, 7, 6, 5, 4, 3, 2};
     int  digitos[10], xy, z, suma, resto, i;
-    long numero;
+    long long numero;
 
     xy     = (sexo == 'F') ? 27 : 20;
-    numero = (long)xy * 100000000L + dni;
+    numero = (long long)xy * 100000000L + dni;
 
     for (i = 9; i >= 0; i--) {
         digitos[i] = (int)(numero % 10);
@@ -94,7 +95,8 @@ void normalizar_nombre(const char *src, char *dest) {
         }
     }
     temp[k] = '\0';
-    strcpy(dest, temp);
+    strncpy(dest, temp, LEN_NOMBRE - 1);
+    dest[LEN_NOMBRE - 1] = '\0';
 }
 
 int validar_email(const char *email) {
@@ -340,7 +342,7 @@ static int csv_split_buf(char *linea, char **campos, int max) {
         ptr++;
     }
     ptr = campos[n - 1] + strlen(campos[n - 1]) - 1;
-    while (ptr >= campos[n - 1] && (*ptr == '\n')) *ptr-- = '\0';
+    while (ptr >= campos[n - 1] && (*ptr == '\n' || *ptr == '\r')) *ptr-- = '\0';
     return n;
 }
 

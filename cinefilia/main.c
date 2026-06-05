@@ -52,16 +52,16 @@ int main(void) {
         int len = (int)strlen(data_path);
         if (len > 0 && data_path[len - 1] == '\n') data_path[len - 1] = '\0';
     }
-    
+
     if (data_path[0] == '\0') {
         strcpy(data_path, "Docs");
     }
-    
+
     path_len = (int)strlen(data_path);
     if (path_len > 0 && data_path[path_len - 1] == '/') {
         data_path[path_len - 1] = '\0';
     }
-    
+
     printf("Usando ruta: %s\n\n", data_path);
     fflush(stdout);
 
@@ -77,10 +77,10 @@ int main(void) {
     indice_crear(&indice_titulos,  CANTIDAD_ELEMENTOS, sizeof(t_reg_indice));
 
     /* 3. Inicializar incidencias */
-   // printf("Inicializando incidencias...\n");
+    printf("Inicializando incidencias...\n");
     fflush(stdout);
-   // incidencias_miembros_init(&inc_miembros);
-   // incidencias_titulos_init(&inc_titulos);
+    incidencias_miembros_init(&inc_miembros);
+    incidencias_titulos_init(&inc_titulos);
 
     /* 4. Cargar datos: CSV fechados si existen, si no CSV originales */
     printf("\nBuscando archivos fechados...\n");
@@ -122,8 +122,8 @@ int main(void) {
     }
 
     /* 5. Mostrar incidencias de la carga */
-    incidencias_miembros_imprimir(&inc_miembros);
-    incidencias_titulos_imprimir(&inc_titulos);
+    //incidencias_miembros_imprimir(&inc_miembros);
+    //incidencias_titulos_imprimir(&inc_titulos);
 
     /* 6. Menu de operaciones */
     do {

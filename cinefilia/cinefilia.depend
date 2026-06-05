@@ -150,3 +150,72 @@
 	<ctype.h>
 	"titulo.h"
 
+1780691333 source:c:\users\cater\tp-topicos-copia\cinefilia\fecha.c
+	<stdio.h>
+	<string.h>
+	<time.h>
+	"fecha.h"
+
+1780691333 c:\users\cater\tp-topicos-copia\cinefilia\fecha.h
+	"tipos.h"
+
+1780691333 c:\users\cater\tp-topicos-copia\cinefilia\tipos.h
+
+1780694967 source:c:\users\cater\tp-topicos-copia\cinefilia\funciones.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"tipos.h"
+	"funciones.h"
+	"fecha.h"
+
+1780691333 c:\users\cater\tp-topicos-copia\cinefilia\funciones.h
+	"tipos.h"
+	"indice.h"
+
+1780691333 c:\users\cater\tp-topicos-copia\cinefilia\indice.h
+	<stddef.h>
+
+1780691333 source:c:\users\cater\tp-topicos-copia\cinefilia\indice.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"indice.h"
+
+1780693360 source:c:\users\cater\tp-topicos-copia\cinefilia\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"tipos.h"
+	"fecha.h"
+	"indice.h"
+	"funciones.h"
+	"miembro.h"
+	"titulo.h"
+
+1780691651 c:\users\cater\tp-topicos-copia\cinefilia\miembro.h
+	"tipos.h"
+	"fecha.h"
+	"indice.h"
+	"funciones.h"
+
+1780691333 c:\users\cater\tp-topicos-copia\cinefilia\titulo.h
+	"tipos.h"
+	"indice.h"
+	"funciones.h"
+
+1780691333 source:c:\users\cater\tp-topicos-copia\cinefilia\titulo.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"titulo.h"
+
+1780694967 source:c:\users\cater\tp-topicos-copia\cinefilia\miembro.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"miembro.h"
+

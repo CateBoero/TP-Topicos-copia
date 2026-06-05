@@ -32,13 +32,16 @@ static int csv_split(char *linea, char **campos, int max) {
         ptr++;
     }
     ptr = campos[n - 1] + strlen(campos[n - 1]) - 1;
-    while (ptr >= campos[n - 1] && (*ptr == '\n')) *ptr-- = '\0';
+    while (ptr >= campos[n - 1] && (*ptr == '\n' || *ptr == '\r')) *ptr-- = '\0';
     return n;
 }
 
 int miembro_validar(const t_miembro *m, t_fecha fp) {
+    char nombre_norm[LEN_NOMBRE];
+
     if (!validar_generico(&m->dni,                validar_dni))    return ERR_MBR_DNI;
-    if (!validar_generico(m->apellidos_nombres,   validar_nombre)) return ERR_MBR_NOMBRE;
+    normalizar_nombre(m->apellidos_nombres, nombre_norm);
+    if (!validar_generico(nombre_norm,            validar_nombre)) return ERR_MBR_NOMBRE;
     if (!fecha_valida(m->fecha_nacimiento))                        return ERR_MBR_FECHA_NAC;
     if (calcular_edad(m->fecha_nacimiento, fp) < 10)               return ERR_MBR_FECHA_NAC;
     if (!validar_generico(&m->sexo,               validar_sexo))   return ERR_MBR_SEXO;
@@ -52,6 +55,12 @@ int miembro_validar(const t_miembro *m, t_fecha fp) {
     if (strcmp(m->categoria, "MENOR") == 0)
         if (!validar_email(m->email_tutor))                        return ERR_MBR_EMAIL;
     return -1;
+}
+
+static int miembro_validar_csv(const t_miembro *m, t_fecha fp) {
+    int err = miembro_validar(m, fp);
+    if (err == ERR_MBR_NOMBRE) return -1;
+    return err;
 }
 
 int miembros_cargar_csv(const char *path, t_miembro *arr, int *cant,
@@ -78,7 +87,10 @@ int miembros_cargar_csv(const char *path, t_miembro *arr, int *cant,
         memset(&m, 0, sizeof(m));
         m.dni = atol(campos[0]);
 
-        normalizar_nombre(campos[1], m.apellidos_nombres);
+        char nombre_temp[LEN_NOMBRE];
+        strncpy(nombre_temp, campos[1], LEN_NOMBRE - 1);
+        nombre_temp[LEN_NOMBRE - 1] = '\0';
+        normalizar_nombre(nombre_temp, m.apellidos_nombres);
 
         if (!fecha_desde_string(campos[2], &m.fecha_nacimiento)) {
             incidencias_miembros_agregar(inc, ERR_MBR_FECHA_NAC, m.dni); continue;
@@ -110,7 +122,7 @@ int miembros_cargar_csv(const char *path, t_miembro *arr, int *cant,
         m.estado = 'A';
         calcular_cuil(m.dni, m.sexo, m.cuil);
 
-        err = miembro_validar(&m, fp);
+        err = miembro_validar_csv(&m, fp);
         if (err != -1) {
             incidencias_miembros_agregar(inc, err, m.dni); continue;
         }
@@ -139,6 +151,7 @@ int miembros_cargar_csv_fechado(const char *path, t_miembro *arr, int *cant,
     char         linea[256];
     char        *campos[12];
     int          n;
+    char         nombre_norm[LEN_NOMBRE];
     t_miembro    m;
     t_reg_indice ri;
 
@@ -155,6 +168,11 @@ int miembros_cargar_csv_fechado(const char *path, t_miembro *arr, int *cant,
         m.dni = atol(campos[0]);
         strncpy(m.cuil,                campos[1], LEN_CUIL - 1);
         strncpy(m.apellidos_nombres,   campos[2], LEN_NOMBRE - 1);
+        m.apellidos_nombres[LEN_NOMBRE - 1] = '\0';
+        char nombre_norm[LEN_NOMBRE];
+        normalizar_nombre(m.apellidos_nombres, nombre_norm);
+        strncpy(m.apellidos_nombres, nombre_norm, LEN_NOMBRE - 1);
+        m.apellidos_nombres[LEN_NOMBRE - 1] = '\0';
         fecha_desde_string(campos[3], &m.fecha_nacimiento);
         m.sexo = campos[4][0];
         fecha_desde_string(campos[5], &m.fecha_afiliacion);
