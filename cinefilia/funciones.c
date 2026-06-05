@@ -5,6 +5,9 @@
 #include "funciones.h"
 #include "fecha.h"
 
+#define MAX_PALABRAS 20
+#define MAX_LEN_PAL  65
+
 int cmp_reg_indice(const void *a, const void *b) {
     const t_reg_indice *ra = (const t_reg_indice *)a;
     const t_reg_indice *rb = (const t_reg_indice *)b;
@@ -43,9 +46,6 @@ void calcular_cuil(long dni, char sexo, char *cuil_str) {
 
     sprintf(cuil_str, "%02d-%08ld-%d", xy, dni, z);
 }
-
-#define MAX_PALABRAS 20
-#define MAX_LEN_PAL  65
 
 void normalizar_nombre(const char *src, char *dest) {
     char palabras[MAX_PALABRAS][MAX_LEN_PAL];
