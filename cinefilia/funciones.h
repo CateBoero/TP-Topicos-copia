@@ -54,6 +54,9 @@ void normalizar_nombre(const char *src, char *dest);
 void ordenamiento_generico(void *base, size_t nmemb, size_t tamanyo,
                            int (*cmp)(const void *, const void *));
 
+/* Compara dos strings ignorando mayusculas/minusculas. Retorna 1 si son iguales. */
+int igual_sin_mayus(const char *a, const char *b);
+
 int validar_email(const char *email);
 int validar_generico(const void *dato, int (*validar)(const void *));
 int validar_dni(const void *dato);
@@ -88,6 +91,10 @@ int alquileres_cargar_csv(const char *path, t_alquiler *arr, int *cant);
 void alquileres_listar_indice(const t_alquiler *arr, int cant,
                               const t_miembro *arr_mbr, const t_indice *idx_mbr,
                               const t_titulo *arr_tit, const t_indice *idx_tit);
+void miembros_listar_con_alquileres_activos(const t_alquiler *arr_alq, int cant_alq,
+                                            const t_miembro *arr_mbr, const t_indice *idx_mbr);
+void titulos_listar_mas_alquilados(const t_alquiler *arr_alq, int cant_alq,
+                                   const t_titulo *arr_tit, const t_indice *idx_tit);
 
 
 int archivos_fechados_existen(t_fecha fp, const char *data_path);

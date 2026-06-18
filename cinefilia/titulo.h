@@ -15,5 +15,8 @@ void titulo_baja(t_titulo *arr, t_indice *idx);
 void titulo_modificar(t_titulo *arr, t_indice *idx);
 void titulo_mostrar(const t_titulo *t);
 void titulo_mostrar_por_id(const t_titulo *arr, const t_indice *idx);
+void titulos_listar_sin_stock(const t_titulo *arr, int cant);
+void titulos_listar_por_genero(const t_titulo *arr, int cant, const char *genero);
+void titulos_listar_stock_bajo(const t_titulo *arr, int cant, int n);
 
 #endif // TITULO_H_INCLUDED

@@ -39,6 +39,14 @@ void ordenamiento_generico(void *base, size_t nmemb, size_t tamanyo,
     free(tmp);
 }
 
+int igual_sin_mayus(const char *a, const char *b) {
+    while (*a && *b) {
+        if (tolower((unsigned char)*a) != tolower((unsigned char)*b)) return 0;
+        a++; b++;
+    }
+    return *a == '\0' && *b == '\0';
+}
+
 void calcular_cuil(long dni, char sexo, char *cuil_str) {
     static const int pesos[] = {5, 4, 3, 2, 7, 6, 5, 4, 3, 2};
     int  digitos[10], xy, z, suma, resto, i;
@@ -661,6 +669,106 @@ void alquileres_listar_indice(const t_alquiler *arr, int cant,
     indice_vaciar(&idx_alq);
 }
 
+typedef struct { long dni;         int total; } t_acc_miembro;
+typedef struct { int  id_pelicula; int total; } t_acc_titulo;
+
+static int cmp_acc_miembro_desc(const void *a, const void *b) {
+    return ((const t_acc_miembro *)b)->total - ((const t_acc_miembro *)a)->total;
+}
+
+static int cmp_acc_titulo_desc(const void *a, const void *b) {
+    return ((const t_acc_titulo *)b)->total - ((const t_acc_titulo *)a)->total;
+}
+
+void miembros_listar_con_alquileres_activos(const t_alquiler *arr_alq, int cant_alq,
+                                            const t_miembro *arr_mbr, const t_indice *idx_mbr) {
+    t_acc_miembro acc[MAX_ALQUILERES];
+    int           n = 0, i, j, encontrado;
+    t_reg_indice  clave;
+    int           pos;
+
+    for (i = 0; i < cant_alq; i++) {
+        if (arr_alq[i].alquileres_activos <= 0) continue;
+        encontrado = 0;
+        for (j = 0; j < n; j++) {
+            if (acc[j].dni == arr_alq[i].dni) {
+                acc[j].total += arr_alq[i].alquileres_activos;
+                encontrado = 1;
+                break;
+            }
+        }
+        if (!encontrado) {
+            acc[n].dni   = arr_alq[i].dni;
+            acc[n].total = arr_alq[i].alquileres_activos;
+            n++;
+        }
+    }
+
+    if (n == 0) { printf("No hay miembros con alquileres activos.\n"); return; }
+
+    ordenamiento_generico(acc, (size_t)n, sizeof(t_acc_miembro), cmp_acc_miembro_desc);
+
+    printf("\n%-12s %-30s %-12s\n", "DNI", "Miembro", "Sin devolver");
+    printf("%-12s %-30s %-12s\n",
+           "------------", "------------------------------", "------------");
+
+    for (i = 0; i < n; i++) {
+        const char *nombre = "(desconocido)";
+
+        clave.dni = acc[i].dni;
+        pos = indice_buscar(idx_mbr, &clave, idx_mbr->cantidad_elementos_actual,
+                            sizeof(t_reg_indice), cmp_reg_indice);
+        if (pos != NO_EXISTE)
+            nombre = arr_mbr[((t_reg_indice *)idx_mbr->vindice)[pos].nro_reg].apellidos_nombres;
+
+        printf("%-12ld %-30s %-12d\n", acc[i].dni, nombre, acc[i].total);
+    }
+}
+
+void titulos_listar_mas_alquilados(const t_alquiler *arr_alq, int cant_alq,
+                                   const t_titulo *arr_tit, const t_indice *idx_tit) {
+    t_acc_titulo acc[MAX_ALQUILERES];
+    int          n = 0, i, j, encontrado;
+    t_reg_indice clave;
+    int          pos;
+
+    for (i = 0; i < cant_alq; i++) {
+        if (arr_alq[i].total_alquileres <= 0) continue;
+        encontrado = 0;
+        for (j = 0; j < n; j++) {
+            if (acc[j].id_pelicula == arr_alq[i].id_pelicula) {
+                acc[j].total += arr_alq[i].total_alquileres;
+                encontrado = 1;
+                break;
+            }
+        }
+        if (!encontrado) {
+            acc[n].id_pelicula = arr_alq[i].id_pelicula;
+            acc[n].total       = arr_alq[i].total_alquileres;
+            n++;
+        }
+    }
+
+    if (n == 0) { printf("No hay alquileres registrados.\n"); return; }
+
+    ordenamiento_generico(acc, (size_t)n, sizeof(t_acc_titulo), cmp_acc_titulo_desc);
+
+    printf("\n%-6s %-30s %-12s\n", "ID", "Titulo", "Total alq.");
+    printf("%-6s %-30s %-12s\n", "------", "------------------------------", "------------");
+
+    for (i = 0; i < n; i++) {
+        const char *titulo = "(desconocido)";
+
+        clave.dni = (long)acc[i].id_pelicula;
+        pos = indice_buscar(idx_tit, &clave, idx_tit->cantidad_elementos_actual,
+                            sizeof(t_reg_indice), cmp_reg_indice);
+        if (pos != NO_EXISTE)
+            titulo = arr_tit[((t_reg_indice *)idx_tit->vindice)[pos].nro_reg].titulo;
+
+        printf("%-6d %-30s %-12d\n", acc[i].id_pelicula, titulo, acc[i].total);
+    }
+}
+
 int archivos_fechados_existen(t_fecha fp, const char *data_path) {
     char  path[256], fecha_str[12];
     FILE *f;
@@ -697,6 +805,16 @@ void imprimir_menu(void) {
     printf("  k. Ver incidencias\n");
     printf("  m. Listado de morosos\n");
     printf("  n. Indice de alquileres\n");
+    printf("  o. Listado de miembros menores activos\n");
+    printf("  p. Listado de miembros por plan especifico\n");
+    printf("  q. Listado de miembros proximos a la morosidad\n");
+    printf("  r. Listado de miembros por sexo\n");
+    printf("  s. Antiguedad de miembros (mas de N anios afiliados)\n");
+    printf("  t. Peliculas sin stock\n");
+    printf("  u. Peliculas por genero\n");
+    printf("  v. Peliculas con stock bajo\n");
+    printf("  w. Miembros con alquileres activos\n");
+    printf("  x. Peliculas mas alquiladas\n");
     printf("  l. Salir\n");
     printf("========================================\n");
     printf("  Opcion: ");

@@ -302,3 +302,70 @@ void titulo_mostrar_por_id(const t_titulo *arr, const t_indice *idx) {
     printf("\n--- Informacion del Titulo ---\n");
     titulo_mostrar(&arr[ri.nro_reg]);
 }
+
+static int cmp_por_titulo(const void *a, const void *b) {
+    return strcmp(((const t_titulo *)a)->titulo, ((const t_titulo *)b)->titulo);
+}
+
+static int cmp_por_id(const void *a, const void *b) {
+    return ((const t_titulo *)a)->id_pelicula - ((const t_titulo *)b)->id_pelicula;
+}
+
+static int cmp_por_stock(const void *a, const void *b) {
+    return ((const t_titulo *)a)->stock - ((const t_titulo *)b)->stock;
+}
+
+void titulos_listar_sin_stock(const t_titulo *arr, int cant) {
+    t_titulo copia[MAX_TITULOS];
+    int      n = 0, i;
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' && arr[i].stock == 0) copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay peliculas sin stock.\n"); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_titulo), cmp_por_titulo);
+
+    printf("\n%-6s %-30s %-15s\n", "ID", "Titulo", "Genero");
+    printf("%-6s %-30s %-15s\n", "------", "------------------------------", "---------------");
+
+    for (i = 0; i < n; i++)
+        printf("%-6d %-30s %-15s\n", copia[i].id_pelicula, copia[i].titulo, copia[i].genero);
+}
+
+void titulos_listar_por_genero(const t_titulo *arr, int cant, const char *genero) {
+    t_titulo copia[MAX_TITULOS];
+    int      n = 0, i;
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' && igual_sin_mayus(arr[i].genero, genero))
+            copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay peliculas activas del genero '%s'.\n", genero); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_titulo), cmp_por_id);
+
+    printf("\n%-6s %-30s %-8s\n", "ID", "Titulo", "Stock");
+    printf("%-6s %-30s %-8s\n", "------", "------------------------------", "--------");
+
+    for (i = 0; i < n; i++)
+        printf("%-6d %-30s %-8d\n", copia[i].id_pelicula, copia[i].titulo, copia[i].stock);
+}
+
+void titulos_listar_stock_bajo(const t_titulo *arr, int cant, int n_max) {
+    t_titulo copia[MAX_TITULOS];
+    int      n = 0, i;
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' && arr[i].stock <= n_max) copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay peliculas con stock menor o igual a %d.\n", n_max); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_titulo), cmp_por_stock);
+
+    printf("\n%-6s %-30s %-8s\n", "ID", "Titulo", "Stock");
+    printf("%-6s %-30s %-8s\n", "------", "------------------------------", "--------");
+
+    for (i = 0; i < n; i++)
+        printf("%-6d %-30s %-8d\n", copia[i].id_pelicula, copia[i].titulo, copia[i].stock);
+}

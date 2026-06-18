@@ -22,5 +22,10 @@ void miembro_mostrar_por_dni(const t_miembro *arr, const t_indice *idx);
 void miembros_listar_por_dni(const t_miembro *arr, const t_indice *idx);
 void miembros_listar_por_plan(const t_miembro *arr, int cant);
 void miembros_listar_morosos(const t_miembro *arr, int cant, t_fecha fp);
+void miembros_listar_menores(const t_miembro *arr, int cant);
+void miembros_listar_por_plan_especifico(const t_miembro *arr, int cant, const char *plan);
+void miembros_listar_proximos_morosidad(const t_miembro *arr, int cant, t_fecha fp);
+void miembros_listar_por_sexo(const t_miembro *arr, int cant, char sexo);
+void miembros_listar_antiguedad(const t_miembro *arr, int cant, int anios, t_fecha fp);
 
 #endif // MIEMBRO_H_INCLUDED

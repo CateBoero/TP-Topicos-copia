@@ -513,3 +513,135 @@ void miembros_listar_morosos(const t_miembro *arr, int cant, t_fecha fp) {
         printf("   %-6ld\n", fecha_diferencia_dias(copia[i].fecha_ultima_cuota, fp));
     }
 }
+
+static int cmp_por_fecha_afiliacion(const void *a, const void *b) {
+    const t_miembro *ma = (const t_miembro *)a;
+    const t_miembro *mb = (const t_miembro *)b;
+    if (fecha_igual(ma->fecha_afiliacion, mb->fecha_afiliacion)) return 0;
+    return fecha_menor_igual(ma->fecha_afiliacion, mb->fecha_afiliacion) ? -1 : 1;
+}
+
+static int cmp_por_dni(const void *a, const void *b) {
+    long da = ((const t_miembro *)a)->dni;
+    long db = ((const t_miembro *)b)->dni;
+    if (da < db) return -1;
+    if (da > db) return  1;
+    return 0;
+}
+
+void miembros_listar_menores(const t_miembro *arr, int cant) {
+    t_miembro copia[MAX_MIEMBROS];
+    int       n = 0, i;
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' && strcmp(arr[i].categoria, "MENOR") == 0)
+            copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay miembros menores activos.\n"); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_miembro), cmp_por_fecha_afiliacion);
+
+    printf("\n%-12s %-30s %-12s %-30s\n",
+           "DNI", "Apellidos y Nombres", "Afiliacion", "Email Tutor");
+    printf("%-12s %-30s %-12s %-30s\n",
+           "------------", "------------------------------", "------------",
+           "------------------------------");
+
+    for (i = 0; i < n; i++) {
+        printf("%-12ld %-30s ", copia[i].dni, copia[i].apellidos_nombres);
+        fecha_imprimir(copia[i].fecha_afiliacion);
+        printf("   %-30s\n", copia[i].email_tutor[0] ? copia[i].email_tutor : "(sin email)");
+    }
+}
+
+void miembros_listar_por_plan_especifico(const t_miembro *arr, int cant, const char *plan) {
+    t_miembro copia[MAX_MIEMBROS];
+    int       n = 0, i;
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' && igual_sin_mayus(arr[i].plan, plan))
+            copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay miembros activos con el plan '%s'.\n", plan); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_miembro), cmp_por_nombre);
+
+    printf("\n%-12s %-30s %-10s\n", "DNI", "Apellidos y Nombres", "Plan");
+    printf("%-12s %-30s %-10s\n",
+           "------------", "------------------------------", "----------");
+
+    for (i = 0; i < n; i++)
+        printf("%-12ld %-30s %-10s\n", copia[i].dni, copia[i].apellidos_nombres, copia[i].plan);
+}
+
+void miembros_listar_proximos_morosidad(const t_miembro *arr, int cant, t_fecha fp) {
+    t_miembro copia[MAX_MIEMBROS];
+    int       n = 0, i;
+    long      dias;
+
+    for (i = 0; i < cant; i++) {
+        if (arr[i].estado != 'A') continue;
+        dias = fecha_diferencia_dias(arr[i].fecha_ultima_cuota, fp);
+        if (dias >= 60 && dias <= 90) copia[n++] = arr[i];
+    }
+
+    if (n == 0) { printf("No hay miembros proximos a la morosidad.\n"); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_miembro), cmp_por_fecha_cuota);
+
+    printf("\n%-12s %-30s %-12s %-6s\n",
+           "DNI", "Apellidos y Nombres", "Ult. Cuota", "Dias");
+    printf("%-12s %-30s %-12s %-6s\n",
+           "------------", "------------------------------", "------------", "------");
+
+    for (i = 0; i < n; i++) {
+        printf("%-12ld %-30s ", copia[i].dni, copia[i].apellidos_nombres);
+        fecha_imprimir(copia[i].fecha_ultima_cuota);
+        printf("   %-6ld\n", fecha_diferencia_dias(copia[i].fecha_ultima_cuota, fp));
+    }
+}
+
+void miembros_listar_por_sexo(const t_miembro *arr, int cant, char sexo) {
+    t_miembro copia[MAX_MIEMBROS];
+    int       n = 0, i;
+    char      sexo_up = (char)toupper((unsigned char)sexo);
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' && arr[i].sexo == sexo_up)
+            copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay miembros activos con sexo '%c'.\n", sexo_up); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_miembro), cmp_por_dni);
+
+    printf("\n%-12s %-30s %-6s\n", "DNI", "Apellidos y Nombres", "Sexo");
+    printf("%-12s %-30s %-6s\n",
+           "------------", "------------------------------", "------");
+
+    for (i = 0; i < n; i++)
+        printf("%-12ld %-30s %-6c\n", copia[i].dni, copia[i].apellidos_nombres, copia[i].sexo);
+}
+
+void miembros_listar_antiguedad(const t_miembro *arr, int cant, int anios, t_fecha fp) {
+    t_miembro copia[MAX_MIEMBROS];
+    int       n = 0, i;
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' && calcular_edad(arr[i].fecha_afiliacion, fp) > anios)
+            copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay miembros con mas de %d anios de antiguedad.\n", anios); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_miembro), cmp_por_fecha_afiliacion);
+
+    printf("\n%-12s %-30s %-12s %-6s\n",
+           "DNI", "Apellidos y Nombres", "Afiliacion", "Anios");
+    printf("%-12s %-30s %-12s %-6s\n",
+           "------------", "------------------------------", "------------", "------");
+
+    for (i = 0; i < n; i++) {
+        printf("%-12ld %-30s ", copia[i].dni, copia[i].apellidos_nombres);
+        fecha_imprimir(copia[i].fecha_afiliacion);
+        printf("   %-6d\n", calcular_edad(copia[i].fecha_afiliacion, fp));
+    }
+}

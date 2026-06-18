@@ -202,6 +202,92 @@ int main(void) {
                                      arr_miembros, &indice_miembros,
                                      arr_titulos,  &indice_titulos);
             break;
+        case 'o': case 'O':
+            printf("\n--- Miembros Menores Activos ---\n");
+            miembros_listar_menores(arr_miembros, cant_miembros);
+            break;
+        case 'p': case 'P':
+            printf("\n--- Miembros por Plan Especifico ---\n");
+            {
+                char plan_buf[32];
+                printf("Plan (BASIC/PREMIUM/VIP/FAMILY): ");
+                if (fgets(plan_buf, sizeof(plan_buf), stdin)) {
+                    int len = (int)strlen(plan_buf);
+                    if (len > 0 && plan_buf[len - 1] == '\n') plan_buf[len - 1] = '\0';
+                }
+                miembros_listar_por_plan_especifico(arr_miembros, cant_miembros, plan_buf);
+            }
+            break;
+        case 'q': case 'Q':
+            printf("\n--- Miembros Proximos a la Morosidad ---\n");
+            miembros_listar_proximos_morosidad(arr_miembros, cant_miembros, fecha_proceso);
+            break;
+        case 'r': case 'R':
+            printf("\n--- Miembros por Sexo ---\n");
+            {
+                char sexo_buf[8];
+                printf("Sexo (F/M/O): ");
+                if (fgets(sexo_buf, sizeof(sexo_buf), stdin)) {
+                    int len = (int)strlen(sexo_buf);
+                    if (len > 0 && sexo_buf[len - 1] == '\n') sexo_buf[len - 1] = '\0';
+                }
+                miembros_listar_por_sexo(arr_miembros, cant_miembros, sexo_buf[0]);
+            }
+            break;
+        case 's': case 'S':
+            printf("\n--- Antiguedad de Miembros ---\n");
+            {
+                char buf_anios[16];
+                int  anios;
+                printf("Mas de cuantos anios de afiliacion: ");
+                if (fgets(buf_anios, sizeof(buf_anios), stdin)) {
+                    int len = (int)strlen(buf_anios);
+                    if (len > 0 && buf_anios[len - 1] == '\n') buf_anios[len - 1] = '\0';
+                }
+                anios = atoi(buf_anios);
+                miembros_listar_antiguedad(arr_miembros, cant_miembros, anios, fecha_proceso);
+            }
+            break;
+        case 't': case 'T':
+            printf("\n--- Peliculas sin Stock ---\n");
+            titulos_listar_sin_stock(arr_titulos, cant_titulos);
+            break;
+        case 'u': case 'U':
+            printf("\n--- Peliculas por Genero ---\n");
+            {
+                char genero_buf[32];
+                printf("Genero (Accion/Drama/Comedia/Terror): ");
+                if (fgets(genero_buf, sizeof(genero_buf), stdin)) {
+                    int len = (int)strlen(genero_buf);
+                    if (len > 0 && genero_buf[len - 1] == '\n') genero_buf[len - 1] = '\0';
+                }
+                titulos_listar_por_genero(arr_titulos, cant_titulos, genero_buf);
+            }
+            break;
+        case 'v': case 'V':
+            printf("\n--- Peliculas con Stock Bajo ---\n");
+            {
+                char buf_stock[16];
+                int  n_stock;
+                printf("Stock maximo a considerar: ");
+                if (fgets(buf_stock, sizeof(buf_stock), stdin)) {
+                    int len = (int)strlen(buf_stock);
+                    if (len > 0 && buf_stock[len - 1] == '\n') buf_stock[len - 1] = '\0';
+                }
+                n_stock = atoi(buf_stock);
+                titulos_listar_stock_bajo(arr_titulos, cant_titulos, n_stock);
+            }
+            break;
+        case 'w': case 'W':
+            printf("\n--- Miembros con Alquileres Activos ---\n");
+            miembros_listar_con_alquileres_activos(arr_alquileres, cant_alquileres,
+                                                    arr_miembros, &indice_miembros);
+            break;
+        case 'x': case 'X':
+            printf("\n--- Peliculas mas Alquiladas ---\n");
+            titulos_listar_mas_alquilados(arr_alquileres, cant_alquileres,
+                                          arr_titulos, &indice_titulos);
+            break;
         case 'l': case 'L':
             printf("\nSaliendo...\n");
             break;
