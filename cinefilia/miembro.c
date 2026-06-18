@@ -462,7 +462,7 @@ void miembros_listar_por_plan(const t_miembro *arr, int cant) {
         if (arr[i].estado == 'A') copia[n++] = arr[i];
     if (n == 0) { printf("No hay miembros activos.\n"); return; }
 
-    qsort(copia, (size_t)n, sizeof(t_miembro), cmp_por_nombre);
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_miembro), cmp_por_nombre);
 
     printf("\n%-30s %-12s %-12s %-12s %-12s\n",
            "Plan / Indice", "(BASIC)", "(PREMIUM)", "(VIP)", "(FAMILY)");
@@ -479,5 +479,37 @@ void miembros_listar_por_plan(const t_miembro *arr, int cant) {
         if (strcmp(copia[i].plan, "FAMILY")  == 0) strcpy(col_f, dni_str);
         printf("%-30s %-12s %-12s %-12s %-12s\n",
                copia[i].apellidos_nombres, col_b, col_p, col_v, col_f);
+    }
+}
+
+static int cmp_por_fecha_cuota(const void *a, const void *b) {
+    const t_miembro *ma = (const t_miembro *)a;
+    const t_miembro *mb = (const t_miembro *)b;
+    if (fecha_igual(ma->fecha_ultima_cuota, mb->fecha_ultima_cuota)) return 0;
+    return fecha_menor_igual(ma->fecha_ultima_cuota, mb->fecha_ultima_cuota) ? -1 : 1;
+}
+
+void miembros_listar_morosos(const t_miembro *arr, int cant, t_fecha fp) {
+    t_miembro copia[MAX_MIEMBROS];
+    int       n = 0, i;
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' &&
+            fecha_diferencia_dias(arr[i].fecha_ultima_cuota, fp) > 90)
+            copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay miembros morosos.\n"); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_miembro), cmp_por_fecha_cuota);
+
+    printf("\n%-12s %-30s %-12s %-6s\n",
+           "DNI", "Apellidos y Nombres", "Ult. Cuota", "Dias");
+    printf("%-12s %-30s %-12s %-6s\n",
+           "------------", "------------------------------", "------------", "------");
+
+    for (i = 0; i < n; i++) {
+        printf("%-12ld %-30s ", copia[i].dni, copia[i].apellidos_nombres);
+        fecha_imprimir(copia[i].fecha_ultima_cuota);
+        printf("   %-6ld\n", fecha_diferencia_dias(copia[i].fecha_ultima_cuota, fp));
     }
 }

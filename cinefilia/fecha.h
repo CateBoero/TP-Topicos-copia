@@ -24,6 +24,9 @@ int fecha_igual(t_fecha f1, t_fecha f2);
 /* Calcula la edad en anios a la fecha de proceso */
 int calcular_edad(t_fecha nacimiento, t_fecha proceso);
 
+/* Retorna la cantidad de dias transcurridos entre f1 y f2 (f2 - f1) */
+long fecha_diferencia_dias(t_fecha f1, t_fecha f2);
+
 /* Parsea fecha desde string DD/MM/YYYY. Retorna 1 si OK */
 int fecha_desde_string(const char *str, t_fecha *f);
 

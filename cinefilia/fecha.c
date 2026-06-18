@@ -50,6 +50,19 @@ int calcular_edad(t_fecha nacimiento, t_fecha proceso) {
     return edad;
 }
 
+/* Convierte la fecha a numero de dia juliano para poder restar fechas */
+static long fecha_a_dias(t_fecha f) {
+    int  a = f.anio;
+    int  m = f.mes;
+    int  a2 = a + 4800 - (m <= 2 ? 1 : 0);
+    int  m2 = m + (m <= 2 ? 12 : 0) - 3;
+    return f.dia + (153L * m2 + 2) / 5 + 365L * a2 + a2 / 4 - a2 / 100 + a2 / 400 - 32045;
+}
+
+long fecha_diferencia_dias(t_fecha f1, t_fecha f2) {
+    return fecha_a_dias(f2) - fecha_a_dias(f1);
+}
+
 int fecha_desde_string(const char *str, t_fecha *f) {
     if (sscanf(str, "%d/%d/%d", &f->dia, &f->mes, &f->anio) != 3)
         return 0;

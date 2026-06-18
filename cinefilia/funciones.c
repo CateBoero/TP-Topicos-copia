@@ -17,6 +17,28 @@ int cmp_reg_indice(const void *a, const void *b) {
     return 0;
 }
 
+void ordenamiento_generico(void *base, size_t nmemb, size_t tamanyo,
+                           int (*cmp)(const void *, const void *)) {
+    char  *arr = (char *)base;
+    char  *tmp;
+    size_t i, j;
+
+    tmp = malloc(tamanyo);
+    if (!tmp) return;
+
+    for (i = 1; i < nmemb; i++) {
+        memcpy(tmp, arr + i * tamanyo, tamanyo);
+        j = i;
+        while (j > 0 && cmp(arr + (j - 1) * tamanyo, tmp) > 0) {
+            memcpy(arr + j * tamanyo, arr + (j - 1) * tamanyo, tamanyo);
+            j--;
+        }
+        memcpy(arr + j * tamanyo, tmp, tamanyo);
+    }
+
+    free(tmp);
+}
+
 void calcular_cuil(long dni, char sexo, char *cuil_str) {
     static const int pesos[] = {5, 4, 3, 2, 7, 6, 5, 4, 3, 2};
     int  digitos[10], xy, z, suma, resto, i;
@@ -192,9 +214,9 @@ static const char *nombres_err_tit[ERR_TIT_MAX] = {
 
 void incidencias_miembros_init(t_incidencias_miembros *inc) {
     int i;
-    
+
     memset(inc, 0, sizeof(t_incidencias_miembros));
-    
+
     for (i = 0; i < ERR_MBR_MAX; i++) {
         if (nombres_err_mbr[i] != NULL) {
             strncpy(inc->filas[i].tipo, nombres_err_mbr[i], 24);
@@ -206,9 +228,9 @@ void incidencias_miembros_init(t_incidencias_miembros *inc) {
 
 void incidencias_titulos_init(t_incidencias_titulos *inc) {
     int i;
-    
+
     memset(inc, 0, sizeof(t_incidencias_titulos));
-    
+
     for (i = 0; i < ERR_TIT_MAX; i++) {
         if (nombres_err_tit[i] != NULL) {
             strncpy(inc->filas[i].tipo, nombres_err_tit[i], 24);
@@ -342,7 +364,7 @@ static int csv_split_buf(char *linea, char **campos, int max) {
         ptr++;
     }
     ptr = campos[n - 1] + strlen(campos[n - 1]) - 1;
-    while (ptr >= campos[n - 1] && (*ptr == '\n' || *ptr == '\r')) *ptr-- = '\0';
+    while (ptr >= campos[n - 1] && (*ptr == '\n')) *ptr-- = '\0';
     return n;
 }
 
@@ -583,6 +605,62 @@ int alquileres_cargar_csv(const char *path, t_alquiler *arr, int *cant) {
     return *cant;
 }
 
+void alquileres_listar_indice(const t_alquiler *arr, int cant,
+                              const t_miembro *arr_mbr, const t_indice *idx_mbr,
+                              const t_titulo *arr_tit, const t_indice *idx_tit) {
+    t_indice      idx_alq;
+    t_reg_indice  clave, *ri;
+    unsigned      i;
+    int           pos;
+
+    if (cant == 0) { printf("No hay alquileres registrados.\n"); return; }
+
+    /* Indice transitorio de alquileres, ordenado por DNI, siguiendo el
+       mismo TDA usado para indice_miembros / indice_titulos. */
+    indice_crear(&idx_alq, CANTIDAD_ELEMENTOS, sizeof(t_reg_indice));
+    for (i = 0; i < (unsigned)cant; i++) {
+        clave.dni     = arr[i].dni;
+        clave.nro_reg = i;
+        indice_insertar(&idx_alq, &clave, sizeof(t_reg_indice), cmp_reg_indice);
+    }
+
+    printf("\n%-12s %-30s %-30s %-8s %-8s\n",
+           "DNI", "Miembro", "Titulo", "Totales", "Activos");
+    printf("%-12s %-30s %-30s %-8s %-8s\n",
+           "------------", "------------------------------",
+           "------------------------------", "--------", "--------");
+
+    for (i = 0; i < idx_alq.cantidad_elementos_actual; i++) {
+        const t_alquiler *a;
+        const char       *nombre = "(desconocido)";
+        const char       *titulo = "(desconocido)";
+
+        ri = (t_reg_indice *)idx_alq.vindice + i;
+        a  = &arr[ri->nro_reg];
+
+        clave.dni = a->dni;
+        pos = indice_buscar(idx_mbr, &clave, idx_mbr->cantidad_elementos_actual,
+                            sizeof(t_reg_indice), cmp_reg_indice);
+        if (pos != NO_EXISTE) {
+            unsigned nro = ((t_reg_indice *)idx_mbr->vindice)[pos].nro_reg;
+            nombre = arr_mbr[nro].apellidos_nombres;
+        }
+
+        clave.dni = (long)a->id_pelicula;
+        pos = indice_buscar(idx_tit, &clave, idx_tit->cantidad_elementos_actual,
+                            sizeof(t_reg_indice), cmp_reg_indice);
+        if (pos != NO_EXISTE) {
+            unsigned nro = ((t_reg_indice *)idx_tit->vindice)[pos].nro_reg;
+            titulo = arr_tit[nro].titulo;
+        }
+
+        printf("%-12ld %-30s %-30s %-8d %-8d\n",
+               a->dni, nombre, titulo, a->total_alquileres, a->alquileres_activos);
+    }
+
+    indice_vaciar(&idx_alq);
+}
+
 int archivos_fechados_existen(t_fecha fp, const char *data_path) {
     char  path[256], fecha_str[12];
     FILE *f;
@@ -617,6 +695,8 @@ void imprimir_menu(void) {
     printf("  i. Listado de miembros ordenados por DNI\n");
     printf("  j. Listado miembros por Plan\n");
     printf("  k. Ver incidencias\n");
+    printf("  m. Listado de morosos\n");
+    printf("  n. Indice de alquileres\n");
     printf("  l. Salir\n");
     printf("========================================\n");
     printf("  Opcion: ");

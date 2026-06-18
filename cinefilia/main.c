@@ -192,6 +192,16 @@ int main(void) {
         case 'k': case 'K':
             ver_incidencias(fecha_proceso, &inc_miembros, &inc_titulos);
             break;
+        case 'm': case 'M':
+            printf("\n--- Listado de Morosos ---\n");
+            miembros_listar_morosos(arr_miembros, cant_miembros, fecha_proceso);
+            break;
+        case 'n': case 'N':
+            printf("\n--- Indice de Alquileres ---\n");
+            alquileres_listar_indice(arr_alquileres, cant_alquileres,
+                                     arr_miembros, &indice_miembros,
+                                     arr_titulos,  &indice_titulos);
+            break;
         case 'l': case 'L':
             printf("\nSaliendo...\n");
             break;

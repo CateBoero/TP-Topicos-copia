@@ -21,5 +21,6 @@ void miembro_mostrar(const t_miembro *m);
 void miembro_mostrar_por_dni(const t_miembro *arr, const t_indice *idx);
 void miembros_listar_por_dni(const t_miembro *arr, const t_indice *idx);
 void miembros_listar_por_plan(const t_miembro *arr, int cant);
+void miembros_listar_morosos(const t_miembro *arr, int cant, t_fecha fp);
 
 #endif // MIEMBRO_H_INCLUDED

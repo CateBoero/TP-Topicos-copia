@@ -49,6 +49,11 @@ int cmp_reg_indice(const void *a, const void *b);
 void calcular_cuil(long dni, char sexo, char *cuil_str);
 void normalizar_nombre(const char *src, char *dest);
 
+/* Ordenamiento generico por inserccion, igual criterio que indice_insertar
+   pero aplicado in-place sobre un arreglo cualquiera (no usa qsort). */
+void ordenamiento_generico(void *base, size_t nmemb, size_t tamanyo,
+                           int (*cmp)(const void *, const void *));
+
 int validar_email(const char *email);
 int validar_generico(const void *dato, int (*validar)(const void *));
 int validar_dni(const void *dato);
@@ -80,6 +85,9 @@ int alquiler_registrar(t_alquiler *arr, int *cant, t_miembro  *arr_mbr, const t_
 int alquiler_devolver(t_alquiler *arr, int cant, t_titulo   *arr_tit, const t_indice *idx_tit);
 int alquileres_guardar_csv(const char *path, const t_alquiler *arr, int cant);
 int alquileres_cargar_csv(const char *path, t_alquiler *arr, int *cant);
+void alquileres_listar_indice(const t_alquiler *arr, int cant,
+                              const t_miembro *arr_mbr, const t_indice *idx_mbr,
+                              const t_titulo *arr_tit, const t_indice *idx_tit);
 
 
 int archivos_fechados_existen(t_fecha fp, const char *data_path);

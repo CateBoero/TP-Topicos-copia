@@ -1,0 +1,64 @@
+Topicos de Programacion - 2do cuatrimestre de 2025
+
+Enunciado
+=========
+
+Se solicita desarrollar nuevas funcionalidades dentro del menu del Trabajo
+Practico:
+
+1) Listado de morosos
+   Un listado con los miembros activos cuya ultima cuota paga supera los 90
+   dias desde la fecha de proceso, ordenados en forma ascendente (desde el
+   mas antiguo al mas reciente).
+
+   Para esto se dispone de un archivo miembros.txt provisto por la catedra.
+
+   Salida esperada con fecha proceso: 07/11/2025
+
+   DNI       APELLIDO Y NOMBRE      FECHA_NAC  SEXO  FECHA_AFIL  CATEG   FECHA_ULT_CUOTA ESTADO PLAN     EMAIL_TUTOR
+   16231024  Martinez, Lisandro     18/10/1974  M     11/05/2004  ADULTO  02/01/2025      A      BASIC
+   32691574  Mac, Allister Alexis   18/10/1986  M     01/04/2005  MENOR   23/02/2025      B      BASIC    coloc@mail.com
+   16860403  Messi, Lionel          21/03/1985  F     08/06/2003  ADULTO  30/03/2025      A      FAMILY
+   16940212  Molina, Nahuel         11/05/1994  M     18/04/2006  MENOR   12/04/2025      A      PREMIUM  nahuem@mail.com
+   16870210  Alvarez, Julian        08/12/1994  F     19/09/1998  ADULTO  14/05/2025      A      BASIC
+   16200214  Montiel, Gonzalo       09/12/1995  M     03/10/1996  MENOR   01/06/2025      B      FAMILY   elgonza@mail.com
+   16790215  Tagliafico, Nicolas    30/01/1991  M     17/02/2008  ADULTO  05/06/2025      B      FAMILY
+   16950207  Paredes, Leandro       15/08/1998  M     06/07/2001  MENOR   28/07/2025      B      VIP      plean@mail.com
+   16540430  Fernandez, Enzo        13/07/1996  M     13/12/1997  ADULTO  08/08/2025      A      VIP
+
+   No pierda tiempo en el formato de salida del texto, puede utilizar la
+   siguiente mascara (siempre utilizando los nombres correctos de los campos
+   de su estructura):
+
+   printf("DNI\t APELLIDO y NOMBRE \tFECHA_NACIMIENTO SEXO \t
+   FECHA_AFILIACION\tCATEGORIA\tFECHA_ULTIMA_CUOTA_PAGA \t ESTADO \t PLAN \t EMAIL TUTOR\n");
+
+   printf("%-10ld %-20s %02d/%02d/%4d %6c\t %02d/%02d/%4d \t\t-15s %02d/%02d/%4d %15c \t%-15s \t%-15s\n",
+   socio.dni, socio.apyn, socio.fecha_nacimiento.dia, socio.fecha_nacimiento.mes, socio.fecha_nacimiento.anio, socio.sexo,
+   socio.fecha_afiliacion.dia, socio.fecha_afiliacion.mes, socio.fecha_afiliacion.anio, socio.categoria,
+   socio.fecha_ultima_cuota_paga.dia, socio.fecha_ultima_cuota_paga.mes, socio.fecha_ultima_cuota_paga.anio,
+   socio.estado, socio.plan, socio.email_tutor);
+
+2) Indice de alquileres
+   Se solicita agregar al menu una opcion que muestre un listado de los
+   alquileres registrados, utilizando para ello los indices ya existentes
+   de miembros y de titulos (indice_miembros, indice_titulos) para resolver,
+   a partir del DNI y del id_pelicula de cada alquiler, el nombre del socio
+   y el titulo de la pelicula correspondientes. El listado debe mostrarse
+   ordenado por DNI.
+
+3) Ordenamiento generico
+   Las dos funcionalidades anteriores deben apoyarse en una funcion de
+   ordenamiento generica (independiente del tipo de dato a ordenar), tomando
+   como inspiracion el criterio de ordenamiento por inserccion ya utilizado
+   por el TDA Indice (indice_insertar). La funcion debe poder reutilizarse
+   en cualquier listado que requiera ordenar un arreglo segun un criterio
+   de comparacion arbitrario.
+
+Notas
+=====
+Puede modificar las funciones de su codigo o crear nuevas, pero no debe
+romper el funcionamiento de las otras opciones de menu ya desarrolladas.
+La entrega se debera realizar por miel, por la opcion de portafolio->TP
+integrador y el formato del archivo a subir debera tener el formato:
+DNI_Apellido_Nombre.zip
