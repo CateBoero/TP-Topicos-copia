@@ -417,3 +417,153 @@ date -d "<fecha de proceso>" +%s   # y restar/sumar 86400 * N dias
 o simplemente eligiendo fechas y corriendo el programa: la opcion
 correspondiente va a mostrar la columna "Dias" calculada, asi se puede
 ajustar el dato hasta dar con el limite que se quiera probar.
+
+---
+
+## 6. Opcion `y` — Funciones extra de defensa
+
+Submenu interno con 10 funcionalidades. Se accede desde el menu
+principal con `y` y luego se elige el numero de la funcion. Cada item
+de abajo indica con que dataset y fecha de proceso conviene probarlo y
+que salida esperar.
+
+### 6.1 (`y` → `1`) Cumpleanios del mes
+
+Dataset: `Docs/test_listados/`, fecha **01/12/2026**.
+Pide el mes (1-12). Filtra `estado=='A'` y `fecha_nacimiento.mes ==
+mes`, ordena por dia ascendente.
+
+Probar con **mes = 1**: todos los miembros activos del dataset nacieron
+el 01/01, asi que la salida debe listar los 7 miembros activos
+(`10000001..10000007`) con dia `1`. Probar con **mes = 5**: "No hay
+miembros que cumplan anios en el mes 5.". Probar con **mes = 13**:
+"Mes invalido.".
+
+### 6.2 (`y` → `2`) Miembros sin alquileres
+
+Dataset: `Docs/test_listados/` (no tiene `alquileres.csv`), fecha
+**01/12/2026**. Sin alquileres cargados, todos los miembros activos
+caen como "sin alquileres" -> 7 filas.
+
+Para ver el caso contrario, usar `Docs/test_alquileres/` con fecha
+**15/12/2026**. Los 3 miembros del dataset tienen al menos un alquiler
+historico (`total_alquileres > 0`), por lo tanto la salida es "Todos
+los miembros activos tienen al menos un alquiler.".
+
+### 6.3 (`y` → `3`) Edad promedio por plan
+
+Dataset: `Docs/test_listados/`, fecha **01/12/2026**.
+
+| Plan | Miembros | Edad prom. |
+|---|---|---|
+| BASIC | 2 | 20.00 (Lopez 26 + Ruiz 14) |
+| PREMIUM | 2 | 32.00 (Diaz 36 + Fernandez 28) |
+| VIP | 2 | 31.00 (Perez 16 + Gomez 46) |
+| FAMILY | 1 | 31.00 (Sosa 31) |
+
+Verifica que `igual_sin_mayus` agrupa bien y que el conteo coincide
+con la opcion `j` (listado por plan).
+
+### 6.4 (`y` → `4`) Titulos sin alquileres
+
+Dataset: `Docs/test_listados/`, fecha **01/12/2026**. Sin
+`alquileres.csv` en esa carpeta, todos los titulos activos (IDs 1 a 8;
+9 y 10 caen como incidencia por genero invalido y stock negativo) se
+listan como nunca alquilados -> 8 filas.
+
+Con `Docs/test_alquileres/` (fecha **15/12/2026**) los titulos activos
+son 1 (El Padrino), 2 (Terminator) y 3 (Rocky), todos tienen
+`total_alquileres > 0`, asi que la salida es "Todos los titulos
+activos fueron alquilados al menos una vez.".
+
+### 6.5 (`y` → `5`) Mayor / menor stock
+
+Dataset: `Docs/test_listados/`, fecha **01/12/2026**.
+
+```
+Mayor stock:
+  ID 5 - Titulo, Cinco (Accion) -> stock 10
+Menor stock:
+  ID 2 - Titulo, Dos (Drama) -> stock 0
+```
+
+(Los titulos aparecen con coma porque la carga aplica `normalizar_nombre`,
+que interpreta los dos tokens como "apellido, nombre". Es comportamiento
+preexistente, no de esta funcion.)
+
+Hay empate de stock 0 entre el ID 2 y el 7; el algoritmo es estricto
+(`<`), asi que se queda con el **primero encontrado**, que es el
+**ID 2** (los titulos se cargan en orden de archivo).
+
+### 6.6 (`y` → `6`) Miembro top historico
+
+Dataset: `Docs/test_alquileres/`, fecha **15/12/2026**.
+Totales por DNI: `11111111`=7 (5+2), `22222222`=7 (3+4), `33333333`=1.
+
+Hay empate entre `11111111` y `22222222`. El algoritmo usa `>`
+estricto, asi que se queda con el **primero encontrado** -> Garcia,
+Pepe con 7 alquileres.
+
+### 6.7 (`y` → `7`) Morosos con alquileres pendientes
+
+Dataset: `Docs/test_alquileres/`, fecha **15/12/2026**.
+
+Las tres ultimas cuotas son anteriores a 90 dias del 15/12/2026:
+- 11111111 Garcia, ult cuota 01/05/2026 (228 dias) → 1 alquiler activo
+- 22222222 Lopez,  ult cuota 15/05/2026 (214 dias) → 2 alquileres activos
+- 33333333 Diaz,   ult cuota 10/05/2026 (219 dias) → 1 alquiler activo
+
+Salida: tabla de 3 filas con columnas "Ult. Cuota | Dias | Sin
+devolver". Verificar que coincide la columna "Dias" con la opcion `m`
+(morosos) y la columna "Sin devolver" con la opcion `w`.
+
+### 6.8 (`y` → `8`) Recaudacion estimada por plan
+
+Dataset: `Docs/test_listados/`, fecha **01/12/2026**.
+
+| Plan | Cuota | Miembros | Subtotal |
+|---|---|---|---|
+| BASIC | $3000 | 2 | $6000 |
+| PREMIUM | $5000 | 2 | $10000 |
+| VIP | $8000 | 2 | $16000 |
+| FAMILY | $7000 | 1 | $7000 |
+| **TOTAL** | | | **$39000** |
+
+Si se cambian las cuotas (`precios[]` en `miembros_recaudacion_por_plan`)
+hay que actualizar este cuadro.
+
+### 6.9 (`y` → `9`) Busqueda por rango en el indice
+
+Dataset: `Docs/test_listados/`, fecha **01/12/2026**.
+
+Probar con `dni_min = 10000003`, `dni_max = 10000006`: debe listar 4
+miembros (Diaz, Sosa, Ruiz, Gomez), en el mismo orden que la opcion
+`i` (orden de indice por DNI).
+
+Probar con `dni_min = 99999999`, `dni_max = 99999999`: "No hay
+miembros activos en el rango [99999999, 99999999].".
+
+Probar con `dni_min = 5`, `dni_max = 1`: "Rango invalido.".
+
+Internamente la funcion hace **lower bound binario** sobre el indice
+(no usa `indice_buscar` porque ese exige igualdad exacta) y luego
+barre. Para verificar que el lower bound funciona, probar con
+`dni_min = 10000004`, `dni_max = 10000005`: debe arrancar **directo en
+Sosa**, no recorrer DNIs anteriores.
+
+### 6.10 (`y` → `10`) Exportar miembros activos a CSV
+
+Dataset: `Docs/test_listados/`, fecha **01/12/2026**.
+
+Probar dejando el nombre por defecto (`miembros_activos.csv`): debe
+informar "Exportados 7 miembros activos a 'miembros_activos.csv'." y
+generar el archivo en el cwd con cabecera
+`DNI;Apellidos y Nombres;Plan;Fecha Ultima Cuota` + 7 filas.
+
+Probar con un path explicito (ej `salida.csv`) para confirmar que el
+parametro se respeta. Si la ruta es invalida (carpeta inexistente)
+debe responder "No se pudo abrir '<path>' para escritura.".
+
+> **Tip:** despues de exportar, abrir el CSV generado con un editor de
+> texto o `column -s';' -t < miembros_activos.csv` en bash para
+> verificar el encabezado y el formato de la fecha (`DD/MM/AAAA`).

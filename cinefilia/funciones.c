@@ -769,6 +769,369 @@ void titulos_listar_mas_alquilados(const t_alquiler *arr_alq, int cant_alq,
     }
 }
 
+/* ============================================================
+   Funcionalidades extra de defensa
+   ============================================================ */
+
+static int cmp_miembro_por_dia_nac(const void *a, const void *b) {
+    const t_miembro *ma = (const t_miembro *)a;
+    const t_miembro *mb = (const t_miembro *)b;
+    return ma->fecha_nacimiento.dia - mb->fecha_nacimiento.dia;
+}
+
+void miembros_listar_cumpleanios_mes(const t_miembro *arr, int cant, int mes) {
+    t_miembro copia[MAX_MIEMBROS];
+    int       n = 0, i;
+
+    if (mes < 1 || mes > 12) { printf("Mes invalido.\n"); return; }
+
+    for (i = 0; i < cant; i++)
+        if (arr[i].estado == 'A' && arr[i].fecha_nacimiento.mes == mes)
+            copia[n++] = arr[i];
+
+    if (n == 0) { printf("No hay miembros que cumplan anios en el mes %d.\n", mes); return; }
+
+    ordenamiento_generico(copia, (size_t)n, sizeof(t_miembro), cmp_miembro_por_dia_nac);
+
+    printf("\n%-4s %-12s %-30s\n", "Dia", "DNI", "Apellidos y Nombres");
+    printf("%-4s %-12s %-30s\n", "----", "------------", "------------------------------");
+
+    for (i = 0; i < n; i++)
+        printf("%-4d %-12ld %-30s\n",
+               copia[i].fecha_nacimiento.dia, copia[i].dni, copia[i].apellidos_nombres);
+}
+
+void miembros_listar_sin_alquileres(const t_miembro *arr_mbr, int cant_mbr,
+                                    const t_alquiler *arr_alq, int cant_alq) {
+    int i, j, encontrado, n = 0;
+
+    printf("\n%-12s %-30s %-10s\n", "DNI", "Apellidos y Nombres", "Plan");
+    printf("%-12s %-30s %-10s\n",
+           "------------", "------------------------------", "----------");
+
+    for (i = 0; i < cant_mbr; i++) {
+        if (arr_mbr[i].estado != 'A') continue;
+        encontrado = 0;
+        for (j = 0; j < cant_alq; j++) {
+            if (arr_alq[j].dni == arr_mbr[i].dni &&
+                arr_alq[j].total_alquileres > 0) { encontrado = 1; break; }
+        }
+        if (!encontrado) {
+            printf("%-12ld %-30s %-10s\n",
+                   arr_mbr[i].dni, arr_mbr[i].apellidos_nombres, arr_mbr[i].plan);
+            n++;
+        }
+    }
+
+    if (n == 0) printf("Todos los miembros activos tienen al menos un alquiler.\n");
+}
+
+void miembros_promedio_edad_por_plan(const t_miembro *arr, int cant, t_fecha fp) {
+    static const char *planes[] = { "BASIC", "PREMIUM", "VIP", "FAMILY" };
+    int   suma[4]  = {0, 0, 0, 0};
+    int   cnt[4]   = {0, 0, 0, 0};
+    int   i, k;
+
+    for (i = 0; i < cant; i++) {
+        if (arr[i].estado != 'A') continue;
+        for (k = 0; k < 4; k++)
+            if (igual_sin_mayus(arr[i].plan, planes[k])) {
+                suma[k] += calcular_edad(arr[i].fecha_nacimiento, fp);
+                cnt[k]++;
+                break;
+            }
+    }
+
+    printf("\n%-10s %-10s %-12s\n", "Plan", "Miembros", "Edad prom.");
+    printf("%-10s %-10s %-12s\n", "----------", "----------", "------------");
+    for (k = 0; k < 4; k++) {
+        if (cnt[k] == 0)
+            printf("%-10s %-10d %-12s\n", planes[k], 0, "-");
+        else
+            printf("%-10s %-10d %-12.2f\n",
+                   planes[k], cnt[k], (double)suma[k] / cnt[k]);
+    }
+}
+
+void titulos_listar_sin_alquileres(const t_titulo *arr_tit, int cant_tit,
+                                   const t_alquiler *arr_alq, int cant_alq) {
+    int i, j, encontrado, n = 0;
+
+    printf("\n%-6s %-30s %-15s %-6s\n", "ID", "Titulo", "Genero", "Stock");
+    printf("%-6s %-30s %-15s %-6s\n",
+           "------", "------------------------------", "---------------", "------");
+
+    for (i = 0; i < cant_tit; i++) {
+        if (arr_tit[i].estado != 'A') continue;
+        encontrado = 0;
+        for (j = 0; j < cant_alq; j++) {
+            if (arr_alq[j].id_pelicula == arr_tit[i].id_pelicula &&
+                arr_alq[j].total_alquileres > 0) { encontrado = 1; break; }
+        }
+        if (!encontrado) {
+            printf("%-6d %-30s %-15s %-6d\n",
+                   arr_tit[i].id_pelicula, arr_tit[i].titulo,
+                   arr_tit[i].genero, arr_tit[i].stock);
+            n++;
+        }
+    }
+
+    if (n == 0) printf("Todos los titulos activos fueron alquilados al menos una vez.\n");
+}
+
+void titulos_extremos_stock(const t_titulo *arr, int cant) {
+    int i, idx_max = -1, idx_min = -1;
+
+    for (i = 0; i < cant; i++) {
+        if (arr[i].estado != 'A') continue;
+        if (idx_max == -1 || arr[i].stock > arr[idx_max].stock) idx_max = i;
+        if (idx_min == -1 || arr[i].stock < arr[idx_min].stock) idx_min = i;
+    }
+
+    if (idx_max == -1) { printf("No hay titulos activos.\n"); return; }
+
+    printf("\nMayor stock:\n");
+    printf("  ID %d - %s (%s) -> stock %d\n",
+           arr[idx_max].id_pelicula, arr[idx_max].titulo,
+           arr[idx_max].genero, arr[idx_max].stock);
+    printf("Menor stock:\n");
+    printf("  ID %d - %s (%s) -> stock %d\n",
+           arr[idx_min].id_pelicula, arr[idx_min].titulo,
+           arr[idx_min].genero, arr[idx_min].stock);
+}
+
+void miembro_top_historico(const t_alquiler *arr_alq, int cant_alq,
+                           const t_miembro *arr_mbr, const t_indice *idx_mbr) {
+    t_acc_miembro acc[MAX_ALQUILERES];
+    int           n = 0, i, j, encontrado, top;
+    t_reg_indice  clave;
+    int           pos;
+
+    for (i = 0; i < cant_alq; i++) {
+        if (arr_alq[i].total_alquileres <= 0) continue;
+        encontrado = 0;
+        for (j = 0; j < n; j++)
+            if (acc[j].dni == arr_alq[i].dni) {
+                acc[j].total += arr_alq[i].total_alquileres;
+                encontrado = 1; break;
+            }
+        if (!encontrado) {
+            acc[n].dni   = arr_alq[i].dni;
+            acc[n].total = arr_alq[i].total_alquileres;
+            n++;
+        }
+    }
+
+    if (n == 0) { printf("No hay alquileres registrados.\n"); return; }
+
+    top = 0;
+    for (i = 1; i < n; i++)
+        if (acc[i].total > acc[top].total) top = i;
+
+    clave.dni = acc[top].dni;
+    pos = indice_buscar(idx_mbr, &clave, idx_mbr->cantidad_elementos_actual,
+                        sizeof(t_reg_indice), cmp_reg_indice);
+
+    printf("\nMiembro con mas alquileres historicos:\n");
+    printf("  DNI    : %ld\n", acc[top].dni);
+    if (pos != NO_EXISTE) {
+        unsigned nro = ((t_reg_indice *)idx_mbr->vindice)[pos].nro_reg;
+        printf("  Nombre : %s\n", arr_mbr[nro].apellidos_nombres);
+        printf("  Plan   : %s\n", arr_mbr[nro].plan);
+    } else {
+        printf("  Nombre : (desconocido)\n");
+    }
+    printf("  Total  : %d alquileres\n", acc[top].total);
+}
+
+void miembros_morosos_con_alquileres_pendientes(const t_alquiler *arr_alq, int cant_alq,
+                                                const t_miembro *arr_mbr, int cant_mbr,
+                                                t_fecha fp) {
+    int i, j, n = 0, activos;
+    long dias;
+
+    printf("\n%-12s %-30s %-12s %-6s %-12s\n",
+           "DNI", "Apellidos y Nombres", "Ult. Cuota", "Dias", "Sin devolver");
+    printf("%-12s %-30s %-12s %-6s %-12s\n",
+           "------------", "------------------------------", "------------", "------", "------------");
+
+    for (i = 0; i < cant_mbr; i++) {
+        if (arr_mbr[i].estado != 'A') continue;
+        dias = fecha_diferencia_dias(arr_mbr[i].fecha_ultima_cuota, fp);
+        if (dias <= 90) continue;
+        activos = 0;
+        for (j = 0; j < cant_alq; j++)
+            if (arr_alq[j].dni == arr_mbr[i].dni)
+                activos += arr_alq[j].alquileres_activos;
+        if (activos <= 0) continue;
+        printf("%-12ld %-30s ", arr_mbr[i].dni, arr_mbr[i].apellidos_nombres);
+        fecha_imprimir(arr_mbr[i].fecha_ultima_cuota);
+        printf("   %-6ld %-12d\n", dias, activos);
+        n++;
+    }
+
+    if (n == 0) printf("No hay morosos con alquileres pendientes.\n");
+}
+
+void miembros_recaudacion_por_plan(const t_miembro *arr, int cant) {
+    static const char *planes[]  = { "BASIC", "PREMIUM", "VIP", "FAMILY" };
+    static const int   precios[] = {   3000,     5000,    8000,    7000  };
+    int   cnt[4] = {0, 0, 0, 0};
+    int   i, k, total = 0;
+
+    for (i = 0; i < cant; i++) {
+        if (arr[i].estado != 'A') continue;
+        for (k = 0; k < 4; k++)
+            if (igual_sin_mayus(arr[i].plan, planes[k])) { cnt[k]++; break; }
+    }
+
+    printf("\n%-10s %-10s %-10s %-12s\n", "Plan", "Cuota", "Miembros", "Subtotal");
+    printf("%-10s %-10s %-10s %-12s\n", "----------", "----------", "----------", "------------");
+    for (k = 0; k < 4; k++) {
+        int sub = cnt[k] * precios[k];
+        total += sub;
+        printf("%-10s $%-9d %-10d $%-11d\n", planes[k], precios[k], cnt[k], sub);
+    }
+    printf("%-10s %-10s %-10s $%-11d\n", "TOTAL", "", "", total);
+}
+
+void miembros_buscar_por_rango_dni(const t_miembro *arr, const t_indice *idx,
+                                   long dni_min, long dni_max) {
+    t_reg_indice *vec;
+    unsigned      lo, hi, mid, start;
+    int           encontrados = 0;
+
+    if (dni_min > dni_max) { printf("Rango invalido.\n"); return; }
+    if (indice_vacio(idx) == OK) { printf("No hay miembros activos.\n"); return; }
+
+    vec = (t_reg_indice *)idx->vindice;
+    lo  = 0;
+    hi  = idx->cantidad_elementos_actual;
+    while (lo < hi) {
+        mid = lo + (hi - lo) / 2;
+        if (vec[mid].dni < dni_min) lo = mid + 1;
+        else                        hi = mid;
+    }
+    start = lo;
+
+    printf("\n%-12s %-30s %-10s\n", "DNI", "Apellidos y Nombres", "Plan");
+    printf("%-12s %-30s %-10s\n",
+           "------------", "------------------------------", "----------");
+
+    for (mid = start; mid < idx->cantidad_elementos_actual; mid++) {
+        if (vec[mid].dni > dni_max) break;
+        printf("%-12ld %-30s %-10s\n",
+               arr[vec[mid].nro_reg].dni,
+               arr[vec[mid].nro_reg].apellidos_nombres,
+               arr[vec[mid].nro_reg].plan);
+        encontrados++;
+    }
+
+    if (encontrados == 0)
+        printf("No hay miembros activos en el rango [%ld, %ld].\n", dni_min, dni_max);
+    else
+        printf("\nTotal: %d miembro(s) en el rango.\n", encontrados);
+}
+
+int miembros_exportar_activos_csv(const t_miembro *arr, int cant, const char *path) {
+    FILE *f;
+    int   i, n = 0;
+
+    f = fopen(path, "w");
+    if (!f) { printf("No se pudo abrir '%s' para escritura.\n", path); return 0; }
+
+    fprintf(f, "DNI;Apellidos y Nombres;Plan;Fecha Ultima Cuota\n");
+    for (i = 0; i < cant; i++) {
+        if (arr[i].estado != 'A') continue;
+        fprintf(f, "%ld;%s;%s;%02d/%02d/%04d\n",
+                arr[i].dni, arr[i].apellidos_nombres, arr[i].plan,
+                arr[i].fecha_ultima_cuota.dia, arr[i].fecha_ultima_cuota.mes,
+                arr[i].fecha_ultima_cuota.anio);
+        n++;
+    }
+    fclose(f);
+    printf("Exportados %d miembros activos a '%s'.\n", n, path);
+    return 1;
+}
+
+void menu_extra_defensa(const t_miembro *arr_mbr, int cant_mbr, const t_indice *idx_mbr,
+                        const t_titulo *arr_tit, int cant_tit,
+                        const t_alquiler *arr_alq, int cant_alq, t_fecha fp) {
+    char buf[64];
+    int  op;
+
+    printf("\n--- Funciones extra de defensa ---\n");
+    printf("  1. Cumpleanios del mes\n");
+    printf("  2. Miembros sin alquileres\n");
+    printf("  3. Edad promedio por plan\n");
+    printf("  4. Titulos sin alquileres\n");
+    printf("  5. Titulos mayor / menor stock\n");
+    printf("  6. Miembro top historico\n");
+    printf("  7. Morosos con alquileres pendientes\n");
+    printf("  8. Recaudacion estimada por plan\n");
+    printf("  9. Busqueda por rango de DNI (indice)\n");
+    printf(" 10. Exportar miembros activos a CSV\n");
+    printf("  Opcion: ");
+    if (scanf("%d", &op) != 1) op = 0;
+    getchar();
+
+    switch (op) {
+    case 1: {
+        int mes;
+        printf("Mes (1-12): ");
+        if (fgets(buf, sizeof(buf), stdin)) { }
+        mes = atoi(buf);
+        miembros_listar_cumpleanios_mes(arr_mbr, cant_mbr, mes);
+        break;
+    }
+    case 2:
+        miembros_listar_sin_alquileres(arr_mbr, cant_mbr, arr_alq, cant_alq);
+        break;
+    case 3:
+        miembros_promedio_edad_por_plan(arr_mbr, cant_mbr, fp);
+        break;
+    case 4:
+        titulos_listar_sin_alquileres(arr_tit, cant_tit, arr_alq, cant_alq);
+        break;
+    case 5:
+        titulos_extremos_stock(arr_tit, cant_tit);
+        break;
+    case 6:
+        miembro_top_historico(arr_alq, cant_alq, arr_mbr, idx_mbr);
+        break;
+    case 7:
+        miembros_morosos_con_alquileres_pendientes(arr_alq, cant_alq, arr_mbr, cant_mbr, fp);
+        break;
+    case 8:
+        miembros_recaudacion_por_plan(arr_mbr, cant_mbr);
+        break;
+    case 9: {
+        long dmin, dmax;
+        printf("DNI desde: ");
+        if (fgets(buf, sizeof(buf), stdin)) { }
+        dmin = atol(buf);
+        printf("DNI hasta: ");
+        if (fgets(buf, sizeof(buf), stdin)) { }
+        dmax = atol(buf);
+        miembros_buscar_por_rango_dni(arr_mbr, idx_mbr, dmin, dmax);
+        break;
+    }
+    case 10: {
+        char path[128];
+        printf("Archivo destino (Enter = miembros_activos.csv): ");
+        if (fgets(path, sizeof(path), stdin)) {
+            int len = (int)strlen(path);
+            if (len > 0 && path[len - 1] == '\n') path[len - 1] = '\0';
+        }
+        if (path[0] == '\0') strcpy(path, "miembros_activos.csv");
+        miembros_exportar_activos_csv(arr_mbr, cant_mbr, path);
+        break;
+    }
+    default:
+        printf("Opcion invalida.\n");
+    }
+}
+
 int archivos_fechados_existen(t_fecha fp, const char *data_path) {
     char  path[256], fecha_str[12];
     FILE *f;
@@ -815,6 +1178,7 @@ void imprimir_menu(void) {
     printf("  v. Peliculas con stock bajo\n");
     printf("  w. Miembros con alquileres activos\n");
     printf("  x. Peliculas mas alquiladas\n");
+    printf("  y. Funciones extra de defensa\n");
     printf("  l. Salir\n");
     printf("========================================\n");
     printf("  Opcion: ");

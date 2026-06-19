@@ -240,12 +240,55 @@ vacio, `ordenamiento_generico` con `cmp_por_titulo`/`cmp_por_id`/`cmp_por_stock`
 | v | Peliculas con stock bajo (pide el stock maximo) |
 | w | Miembros con alquileres activos (sin devolver) |
 | x | Peliculas mas alquiladas (historico) |
+| y | Funciones extra de defensa (submenu 1-10) |
 | l | Salir |
 
 6. Al salir, ordena las incidencias (`incidencias_ordenar_*`) y guarda
    todo en CSV fechado (`miembros_AAAAMMDD.csv`, `titulos_AAAAMMDD.csv`,
    `alquileres_AAAAMMDD.csv`, `incidencias_*_AAAAMMDD.csv`).
 7. Libera los indices (`indice_vaciar`) y termina.
+
+---
+
+## 7.bis. Funciones extra de defensa (opcion `y`)
+
+Estas funciones extienden el sistema con consultas y cruces adicionales
+pensados para defensa oral. Todas viven en `funciones.c` y se acceden
+desde un **submenu** disparado por la opcion `y` del menu principal
+(`menu_extra_defensa` en `funciones.c`).
+
+| Submenu | Funcion | Que hace | Filtro | Orden | Parametros |
+|---|---|---|---|---|---|
+| 1 | `miembros_listar_cumpleanios_mes(arr, cant, mes)` | Miembros que cumplen anios en un mes dado | `estado=='A'` y `fecha_nacimiento.mes == mes` | dia de nacimiento ascendente | mes 1-12 |
+| 2 | `miembros_listar_sin_alquileres(arr_mbr, n_mbr, arr_alq, n_alq)` | Anti-join: miembros activos sin ningun alquiler historico | `total_alquileres == 0` para todo registro de ese DNI | recorrido del array de miembros | ninguno |
+| 3 | `miembros_promedio_edad_por_plan(arr, cant, fp)` | Edad promedio (anios cumplidos a `fp`) por plan | `estado=='A'`, agrupado por plan (`igual_sin_mayus`) | tabla fija BASIC/PREMIUM/VIP/FAMILY | ninguno |
+| 4 | `titulos_listar_sin_alquileres(arr_tit, n_tit, arr_alq, n_alq)` | Anti-join: titulos activos jamas alquilados | `total_alquileres == 0` para todo registro de ese `id_pelicula` | recorrido del array de titulos | ninguno |
+| 5 | `titulos_extremos_stock(arr, cant)` | Imprime el titulo con mayor y menor stock | `estado=='A'` | un solo pase, recordando `idx_max`/`idx_min` | ninguno |
+| 6 | `miembro_top_historico(arr_alq, n_alq, arr_mbr, idx_mbr)` | Miembro con mas alquileres historicos totales | acumula `total_alquileres` por DNI | un solo pase para hallar el maximo, lookup en `idx_mbr` para el nombre | ninguno |
+| 7 | `miembros_morosos_con_alquileres_pendientes(arr_alq, n_alq, arr_mbr, n_mbr, fp)` | Cruce moroso + alquileres no devueltos | `dias_sin_pagar > 90` **y** `sum(alquileres_activos) > 0` | recorrido del array de miembros | ninguno |
+| 8 | `miembros_recaudacion_por_plan(arr, cant)` | Estimacion mensual: `cantidad_miembros * cuota_plan` | `estado=='A'` | tabla fija BASIC=3000, PREMIUM=5000, VIP=8000, FAMILY=7000 | ninguno |
+| 9 | `miembros_buscar_por_rango_dni(arr, idx, dni_min, dni_max)` | Listado por rango aprovechando que el indice esta ordenado | `dni_min <= dni <= dni_max` | mismo orden del indice | `dni_min`, `dni_max` |
+| 10 | `miembros_exportar_activos_csv(arr, cant, path)` | Exporta los miembros activos a un CSV nuevo | `estado=='A'` | recorrido del array | `path` destino |
+
+Notas de implementacion:
+
+- **Anti-join (2 y 4):** doble loop O(n*m). Para el TP alcanza; en
+  produccion convendria un indice auxiliar.
+- **Promedio por plan (3) y recaudacion (8):** comparten el patron de
+  acumuladores indexados por plan (`suma[4]`, `cnt[4]`) con
+  `igual_sin_mayus` para ser tolerantes a mayusculas.
+- **Top historico (6):** reutiliza el acumulador `t_acc_miembro`
+  declarado para `miembros_listar_con_alquileres_activos` (opcion `w`).
+- **Morosos con pendientes (7):** combina el criterio de la opcion `m`
+  (> 90 dias) con un sumador de `alquileres_activos` por DNI.
+- **Busqueda por rango (9):** implementa **lower bound** con busqueda
+  binaria sobre `idx->vindice` (no usa `indice_buscar` porque ese pide
+  igualdad exacta) y luego barre hacia adelante hasta superar
+  `dni_max`. Es el patron de `range query` clasico para indices
+  ordenados.
+- **Exportar CSV (10):** abre el archivo destino con `fopen("w")`,
+  escribe un encabezado y una linea por miembro activo. Util para
+  variantes "guarde el listado X en archivo".
 
 ---
 

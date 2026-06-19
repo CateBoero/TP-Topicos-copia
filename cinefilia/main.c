@@ -288,6 +288,11 @@ int main(void) {
             titulos_listar_mas_alquilados(arr_alquileres, cant_alquileres,
                                           arr_titulos, &indice_titulos);
             break;
+        case 'y': case 'Y':
+            menu_extra_defensa(arr_miembros, cant_miembros, &indice_miembros,
+                               arr_titulos, cant_titulos,
+                               arr_alquileres, cant_alquileres, fecha_proceso);
+            break;
         case 'l': case 'L':
             printf("\nSaliendo...\n");
             break;

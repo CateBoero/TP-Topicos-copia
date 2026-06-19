@@ -97,6 +97,49 @@ void titulos_listar_mas_alquilados(const t_alquiler *arr_alq, int cant_alq,
                                    const t_titulo *arr_tit, const t_indice *idx_tit);
 
 
+/* === Funcionalidades extra de defensa === */
+
+/* 1. Miembros que cumplen anios en un mes dado (1-12). */
+void miembros_listar_cumpleanios_mes(const t_miembro *arr, int cant, int mes);
+
+/* 2. Miembros sin alquileres historicos. */
+void miembros_listar_sin_alquileres(const t_miembro *arr_mbr, int cant_mbr,
+                                    const t_alquiler *arr_alq, int cant_alq);
+
+/* 3. Promedio de edad por plan (BASIC/PREMIUM/VIP/FAMILY). */
+void miembros_promedio_edad_por_plan(const t_miembro *arr, int cant, t_fecha fp);
+
+/* 4. Titulos que nunca fueron alquilados. */
+void titulos_listar_sin_alquileres(const t_titulo *arr_tit, int cant_tit,
+                                   const t_alquiler *arr_alq, int cant_alq);
+
+/* 5. Titulos con mayor y menor stock (saltea estado 'B'). */
+void titulos_extremos_stock(const t_titulo *arr, int cant);
+
+/* 6. Miembro con mas alquileres historicos totales. */
+void miembro_top_historico(const t_alquiler *arr_alq, int cant_alq,
+                           const t_miembro *arr_mbr, const t_indice *idx_mbr);
+
+/* 7. Miembros morosos que ademas tienen alquileres sin devolver. */
+void miembros_morosos_con_alquileres_pendientes(const t_alquiler *arr_alq, int cant_alq,
+                                                const t_miembro *arr_mbr, int cant_mbr,
+                                                t_fecha fp);
+
+/* 8. Recaudacion estimada mensual por plan (cuota fija por plan). */
+void miembros_recaudacion_por_plan(const t_miembro *arr, int cant);
+
+/* 9. Busqueda por rango sobre el indice de miembros (lower bound + barrido). */
+void miembros_buscar_por_rango_dni(const t_miembro *arr, const t_indice *idx,
+                                   long dni_min, long dni_max);
+
+/* 10. Exporta a CSV los miembros activos (DNI;Nombre;Plan;Cuota). */
+int miembros_exportar_activos_csv(const t_miembro *arr, int cant, const char *path);
+
+void menu_extra_defensa(const t_miembro *arr_mbr, int cant_mbr, const t_indice *idx_mbr,
+                        const t_titulo *arr_tit, int cant_tit,
+                        const t_alquiler *arr_alq, int cant_alq, t_fecha fp);
+
+
 int archivos_fechados_existen(t_fecha fp, const char *data_path);
 
 void imprimir_menu(void);
