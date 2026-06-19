@@ -1,0 +1,13 @@
+# titulos.csv de prueba
+# Formato: ID;Titulo;Genero;Stock
+#
+1;Titulo Uno;Accion;5
+2;Titulo Dos;Drama;0
+3;Titulo Tres;Comedia;1
+4;Titulo Cuatro;Terror;2
+5;Titulo Cinco;Accion;10
+6;Titulo Seis;Drama;3
+7;Titulo Siete;Comedia;0
+8;Titulo Ocho;Terror;1
+9;Titulo Nueve;CienciaFiccion;5
+10;Titulo Diez;Accion;-1
